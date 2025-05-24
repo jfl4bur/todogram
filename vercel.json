@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/notion",
+      "dest": "/api/notion.js"
+    },
+    {
+      "src": "/api/tmdb",
+      "dest": "/api/tmdb.js"
+    }
+  ]
+}
