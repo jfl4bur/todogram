@@ -1,12 +1,16 @@
 {
   "name": "notion-proxy",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "start": "vercel dev"
   },
   "dependencies": {
-    "@vercel/node": "^2.8.4",
-    "node-fetch": "^2.6.7",
+    "@vercel/node": "^3.0.0",
+    "node-fetch": "^3.3.2",
     "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }
