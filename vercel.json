@@ -1,24 +1,15 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
-      "src": "/api/notion",
-      "dest": "/api/notion.js"
-    },
-    {
-      "src": "/api/tmdb",
-      "dest": "/api/tmdb.js"
-    }
-  ]
-}
-{
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST" }
-      ]
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     }
   ]
 }
