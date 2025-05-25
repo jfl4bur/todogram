@@ -1,23 +1,26 @@
 {
-  "version": 3,
+  "version": 2,
   "builds": [
     {
-      "src": "api/*.js",
+      "src": "api/notion.js",
       "use": "@vercel/node",
-      "config": { 
-        "nodeVersion": "18.x",
+      "config": {
         "includeFiles": ["api/**"]
       }
+    },
+    {
+      "src": "api/health.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST"
-      }
+      "src": "/api/notion",
+      "dest": "/api/notion"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health"
     }
   ]
 }
