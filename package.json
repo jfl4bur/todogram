@@ -7,11 +7,9 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "@vercel/node": "^4.2.4",
+    "@vercel/node": "^3.0.0",
     "node-fetch": "^3.3.2",
-    "cors": "^2.8.5",
-    "rimraf": "^5.0.5",
-    "glob": "^10.3.10"
+    "cors": "^2.8.5"
   },
   "engines": {
     "node": ">=18"
