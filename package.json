@@ -9,7 +9,9 @@
   "dependencies": {
     "@vercel/node": "^3.0.0",
     "node-fetch": "^3.3.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "glob": "^10.3.10",
+    "rimraf": "^5.0.5"
   },
   "engines": {
     "node": ">=18"
