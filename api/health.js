@@ -1,7 +1,7 @@
-import cors from 'cors';
-const corsMiddleware = cors();
-
 export default async (req, res) => {
-  await new Promise(resolve => corsMiddleware(req, res, resolve));
-  res.status(200).json({ status: 'ok', version: '1.0.0' });
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).send(JSON.stringify({ 
+    status: 'ok',
+    message: 'API funcionando'
+  }));
 };
