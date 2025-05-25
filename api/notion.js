@@ -6,21 +6,32 @@ export default async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
   try {
-    const response = await fetch(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
+    const NOTION_API_KEY = process.env.NOTION_API_KEY;
+    const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+
+    if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
+      throw new Error('Faltan variables de entorno de Notion');
+    }
+
+    const response = await fetch(`https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.NOTION_API_KEY}`,
+        'Authorization': `Bearer ${NOTION_API_KEY}`,
         'Content-Type': 'application/json',
         'Notion-Version': '2022-06-28'
-      }
+      },
+      body: JSON.stringify({
+        sorts: [{ property: 'Categoria', direction: 'ascending' }]
+      })
     });
 
     const data = await response.json();
-    res.status(200).send(JSON.stringify(data));
+    return res.status(200).json(data);
     
   } catch (error) {
-    res.status(500).send(JSON.stringify({
-      error: error.message
-    }));
+    return res.status(500).json({
+      error: error.message,
+      details: 'Error en el servidor proxy'
+    });
   }
 };
