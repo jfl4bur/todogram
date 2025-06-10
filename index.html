@@ -2,34 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rakuten Clone</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <h1>Películas</h1>
   <div id="carousel"></div>
 
-  <script>
-    function renderItems(items) {
-      const carousel = document.getElementById("carousel");
-      items.forEach(item => {
-        const el = document.createElement("div");
-        el.innerHTML = \`
-          <a href="\${item["Ver Película"]}" target="_blank">
-            <img src="\${item.Carteles[0].external.url}" alt="\${item.Título}" />
-            <h3>\${item.Título}</h3>
-          </a>
-        \`;
-        carousel.appendChild(el);
-      });
-    }
+  <!-- Modal: se inyecta con JS -->
+  <div id="modal" class="modal hidden"></div>
 
-    fetch("https://TU_USUARIO.github.io/TU_REPO/data.json")
-      .then(res => res.json())
-      .then(data => {
-        window.rakutenItems = data;
-        renderItems(data);
-      });
-  </script>
+  <script src="carousel.js"></script>
 </body>
 </html>
