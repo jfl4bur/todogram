@@ -1,22 +1,29 @@
 name: Sync Notion with TMDB
 
 on:
-  schedule:
-    - cron: "0 3 * * *"
   workflow_dispatch:
 
 jobs:
-  run-sync:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-      - run: npm install
-      - run: node main.js
-        env:
-          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run main script
+        run: node main.js
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
