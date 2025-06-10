@@ -1,70 +1,21 @@
-import dotenv from "dotenv";
-dotenv.config();
+const fs = require("fs");
+const path = require("path");
 
-import { Client } from "@notionhq/client";
-import axios from "axios";
+const finalItems = [
+  {
+    "Título": "Matrix",
+    "Año": "1999",
+    "Géneros": "Acción · Ciencia ficción",
+    "Synopsis": "Neo descubre la verdad sobre la Matrix...",
+    "Carteles": [{ "external": { "url": "https://via.placeholder.com/300x450" }}],
+    "Ver Película": "https://tusitio.com/ver/matrix"
+  }
+];
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const databaseId = process.env.NOTION_DATABASE_ID;
-const tmdbApiKey = process.env.TMDB_API_KEY;
-
-async function fetchTMDB(id) {
-  const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${tmdbApiKey}&language=es-ES`;
-  const res = await axios.get(url);
-  return res.data;
-}
-
-async function updateNotionPage(pageId, tmdb) {
-  const synopsis = tmdb.overview || "Sin sinopsis.";
-  const year = tmdb.release_date?.split("-")[0] || null;
-  const genres = tmdb.genres.map(g => g.name).join(" · ");
-  const poster = `https://image.tmdb.org/t/p/w500${tmdb.poster_path}`;
-
-  await notion.pages.update({
-    page_id: pageId,
-    properties: {
-      "Synopsis": { rich_text: [{ text: { content: synopsis.substring(0, 2000) } }] },
-      "Géneros": { rich_text: [{ text: { content: genres } }] },
-      "Año": { number: year ? parseInt(year) : null },
-      "Carteles": { files: [{ name: "Poster", external: { url: poster } }] }
-    }
-  });
-}
-
-async function main() {
-  let cursor = undefined;
-  do {
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      page_size: 100,
-      start_cursor: cursor,
-    });
-
-    for (const page of response.results) {
-      const pid = page.id;
-      const props = page.properties;
-      const tmdbId = props["ID TMDB"]?.rich_text?.[0]?.plain_text;
-      if (!tmdbId) continue;
-
-      const hasSynopsis = props["Synopsis"]?.rich_text?.length > 0;
-      const hasGenres = props["Géneros"]?.rich_text?.length > 0;
-
-      if (hasSynopsis && hasGenres) {
-        console.log(`➡️ Ya completo: página ${pid}`);
-        continue;
-      }
-
-      try {
-        const tmdbData = await fetchTMDB(tmdbId);
-        await updateNotionPage(pid, tmdbData);
-        console.log(`✅ Actualizado: ${tmdbData.title}`);
-      } catch (e) {
-        console.error(`❌ Error [TMDB ${tmdbId}]:`, e.message);
-      }
-    }
-
-    cursor = response.has_more ? response.next_cursor : undefined;
-  } while (cursor);
-}
-
-main();
+fs.mkdirSync(path.join(__dirname, "public"), { recursive: true });
+fs.writeFileSync(
+  path.join(__dirname, "public", "data.json"),
+  JSON.stringify(finalItems, null, 2),
+  "utf-8"
+);
+console.log("✅ Datos guardados en public/data.json");
