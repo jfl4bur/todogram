@@ -32,27 +32,39 @@ async function updateNotionPage(pageId, tmdb) {
 }
 
 async function main() {
-  const pages = await notion.databases.query({ database_id: databaseId, page_size: 100 });
+  let cursor = undefined;
+  do {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      page_size: 100,
+      start_cursor: cursor,
+    });
 
-  for (const page of pages.results) {
-    const pid = page.id;
-    const props = page.properties;
-    const tmdbId = props["ID TMDB"]?.rich_text?.[0]?.plain_text;
-    if (!tmdbId) continue;
+    for (const page of response.results) {
+      const pid = page.id;
+      const props = page.properties;
+      const tmdbId = props["ID TMDB"]?.rich_text?.[0]?.plain_text;
+      if (!tmdbId) continue;
 
-    const hasSynopsis = props["Synopsis"]?.rich_text?.length > 0;
-    const hasGenres = props["Géneros"]?.rich_text?.length > 0;
+      const hasSynopsis = props["Synopsis"]?.rich_text?.length > 0;
+      const hasGenres = props["Géneros"]?.rich_text?.length > 0;
 
-    if (hasSynopsis && hasGenres) continue;
+      if (hasSynopsis && hasGenres) {
+        console.log(`➡️ Ya completo: página ${pid}`);
+        continue;
+      }
 
-    try {
-      const tmdbData = await fetchTMDB(tmdbId);
-      await updateNotionPage(pid, tmdbData);
-      console.log(`✅ Actualizado: ${tmdbData.title}`);
-    } catch (e) {
-      console.error(`❌ Error [TMDB ${tmdbId}]:`, e.message);
+      try {
+        const tmdbData = await fetchTMDB(tmdbId);
+        await updateNotionPage(pid, tmdbData);
+        console.log(`✅ Actualizado: ${tmdbData.title}`);
+      } catch (e) {
+        console.error(`❌ Error [TMDB ${tmdbId}]:`, e.message);
+      }
     }
-  }
+
+    cursor = response.has_more ? response.next_cursor : undefined;
+  } while (cursor);
 }
 
 main();
