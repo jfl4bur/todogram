@@ -2,17 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rakuten Clone</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Todogram Data</title>
 </head>
 <body>
-  <h1>Películas</h1>
-  <div id="carousel"></div>
+  <h1>JSON de Todogram</h1>
+  <pre id="json"></pre>
 
-  <!-- Modal: se inyecta con JS -->
-  <div id="modal" class="modal hidden"></div>
-
-  <script src="carousel.js"></script>
+  <script>
+    fetch('data.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('json').textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(() => {
+        document.getElementById('json').textContent = 'No se pudo cargar data.json';
+      });
+  </script>
 </body>
 </html>

@@ -19,11 +19,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run main script
+      - name: Run main.js
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: node main.js
 
+      - name: Copy index.html to public
+        run: cp index.html public/index.html
+
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: actions/deploy-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
