@@ -1,0 +1,11 @@
+{
+  "name": "todogram",
+  "version": "1.0.0",
+  "main": "main.js",
+  "type": "module",
+  "dependencies": {
+    "@notionhq/client": "^2.2.3",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  }
+}
