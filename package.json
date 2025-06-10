@@ -1,5 +1,5 @@
 {
-  "name": "todogram",
+  "name": "sync-notion-tmdb",
   "version": "1.0.0",
   "main": "main.js",
   "type": "module",
