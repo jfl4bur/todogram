@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
+// Este es un ejemplo simple para generar el JSON
 const finalItems = [
   {
     "Título": "Matrix",
@@ -18,4 +19,5 @@ fs.writeFileSync(
   JSON.stringify(finalItems, null, 2),
   "utf-8"
 );
+
 console.log("✅ Datos guardados en public/data.json");
