@@ -103,8 +103,7 @@ async function main() {
     return;
   }
 
-  const data = [];
-  ...
+
   const notionPages = await fetchNotionData();
   const data = [];
 

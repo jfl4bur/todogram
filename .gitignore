@@ -27,3 +27,5 @@ Thumbs.db
 todogram.bat
 todogram.ps1
 
+#  SECRET_KEYS
+.env
