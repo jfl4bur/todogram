@@ -1,0 +1,24 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Logs
+logs
+*.log
+
+# Mac
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+
+# Archivos temporales
+*.tmp
+*.swp
+*.swo
+
+# Sistema
+Thumbs.db
