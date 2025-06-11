@@ -1,3 +1,14 @@
+<p align="center">
+  <a href="https://github.com/jfl4bur/Todogram">
+    <img src="https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge" alt="Contributors" />
+    <img src="https://img.shields.io/github/forks/jfl4bur/Todogram.svg?style=for-the-badge" alt="Forks" />
+    <img src="https://img.shields.io/github/stars/jfl4bur/Todogram.svg?style=for-the-badge" alt="Stargazers" />
+    <img src="https://img.shields.io/github/issues/jfl4bur/Todogram.svg?style=for-the-badge" alt="Issues" />
+    <img src="https://img.shields.io/github/license/jfl4bur/Todogram.svg?style=for-the-badge" alt="License" />
+    <img src="https://img.shields.io/badge/LinkedIn--blue?style=for-the-badge&logo=linkedin" alt="LinkedIn" />
+  </a>
+</p>
+
 # Uso 🚀
 Subir a Github
 

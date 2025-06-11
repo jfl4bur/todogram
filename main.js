@@ -96,6 +96,16 @@ function fillMissingFields(item, tmdbData) {
 
 async function main() {
   const notionPages = await fetchNotionData();
+  console.log(`✅ ${notionPages.length} página(s) encontradas en la base de datos de Notion.`);
+
+  if (notionPages.length === 0) {
+    console.error("❌ No se encontraron datos en la base de datos de Notion.");
+    return;
+  }
+
+  const data = [];
+  ...
+  const notionPages = await fetchNotionData();
   const data = [];
 
   for (const page of notionPages) {
