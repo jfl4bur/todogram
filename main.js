@@ -4,7 +4,7 @@ import { config } from "dotenv";
 
 config();
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const databaseId = process.env.NOTION_DATABASE_ID;
 
 async function getDatabaseItems() {
@@ -27,44 +27,65 @@ async function getDatabaseItems() {
 }
 
 function extractDataFromPage(page) {
-  const props = page.properties || {};
+  const p = page.properties;
+
+  // Helper para obtener texto de rich_text o title
+  const getText = (prop) => {
+    if (!prop) return "";
+    if (prop.type === "title" && prop.title.length > 0) return prop.title[0].plain_text;
+    if (prop.type === "rich_text" && prop.rich_text.length > 0) return prop.rich_text[0].plain_text;
+    return "";
+  };
+
+  // Helper para obtener URL del primer archivo
+  const getFirstFileUrl = (prop) => {
+    if (!prop || !prop.files || prop.files.length === 0) return "";
+    const file = prop.files[0];
+    return file.type === "file" ? file.file.url : (file.type === "external" ? file.external.url : "");
+  };
+
+  // Helper para extraer multi_select nombres concatenados
+  const getMultiSelect = (prop) => {
+    if (!prop || !prop.multi_select) return "";
+    return prop.multi_select.map(tag => tag.name).join(" · ");
+  };
+
+  // Helper para extraer select nombre
+  const getSelect = (prop) => {
+    if (!prop || !prop.select) return "";
+    return prop.select.name || "";
+  };
+
   return {
-    "Título": props["Título"]?.title?.[0]?.plain_text || "",
-    "ID TMDB": props["ID TMDB"]?.rich_text?.[0]?.plain_text || "",
-    "TMDB": props["ID TMDB"]?.rich_text?.[0]?.plain_text
-      ? `https://www.themoviedb.org/movie/${props["ID TMDB"]?.rich_text?.[0]?.plain_text}`
-      : "",
-    "Synopsis": props["Synopsis"]?.rich_text?.[0]?.plain_text || "",
-    "Carteles": props["Carteles"]?.files?.[0]?.file?.url || "",
-    "Portada": props["Portada"]?.files?.[0]?.file?.url || "",
-    "Géneros": props["Géneros"]?.multi_select?.map(tag => tag.name).join(" · ") || "",
-    "Año": props["Año"]?.number || "",
-    "Duración": props["Duración"]?.number || "",
-    "Puntuación 1-10": props["Puntuación"]?.number || "",
-    "Trailer": props["Trailer"]?.url || "",
-    "Ver Película": props["Ver Película"]?.url || "",
-    "Audios": props["Audios"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "Subtítulos": props["Subtítulos"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "Título original": props["Título original"]?.rich_text?.[0]?.plain_text || "",
-    "Productora(s)": props["Productora(s)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "Idioma(s) original(es)": props["Idioma(s) original(es)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "País(es)": props["País(es)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "Escritor(es)": props["Escritor(es)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "Reparto principal": props["Reparto principal"]?.multi_select?.map(tag => tag.name).join(", ") || "",
-    "Categoría": props["Categoría"]?.select?.name || ""
+    "Título": getText(p["Título"]),
+    "ID TMDB": getText(p["ID TMDB"]),
+    "TMDB": getText(p["ID TMDB"]) ? `https://www.themoviedb.org/movie/${getText(p["ID TMDB"])}` : "",
+    "Synopsis": getText(p["Synopsis"]),
+    "Carteles": getFirstFileUrl(p["Carteles"]),
+    "Portada": getFirstFileUrl(p["Portada"]),
+    "Géneros": getMultiSelect(p["Géneros"]),
+    "Año": p["Año"]?.number || "",
+    "Duración": p["Duración"]?.number || "",
+    "Puntuación 1-10": p["Puntuación"]?.number || "",
+    "Trailer": p["Trailer"]?.url || "",
+    "Ver Película": p["Ver Película"]?.url || "",
+    "Audios": getMultiSelect(p["Audios"]),
+    "Subtítulos": getMultiSelect(p["Subtítulos"]),
+    "Título original": getText(p["Título original"]),
+    "Productora(s)": getMultiSelect(p["Productora(s)"]),
+    "Idioma(s) original(es)": getMultiSelect(p["Idioma(s) original(es)"]),
+    "País(es)": getMultiSelect(p["País(es)"]),
+    "Escritor(es)": getMultiSelect(p["Escritor(es)"]),
+    "Reparto principal": getMultiSelect(p["Reparto principal"]),
+    "Categoría": getSelect(p["Categoría"])
   };
 }
 
 async function main() {
-  try {
-    const pages = await getDatabaseItems();
-    const data = pages.map(extractDataFromPage);
-    fs.writeFileSync("./public/data.json", JSON.stringify(data, null, 2));
-    console.log("✅ Archivo data.json actualizado correctamente.");
-  } catch (error) {
-    console.error("❌ Error en main.js:", error);
-    process.exit(1);
-  }
+  const pages = await getDatabaseItems();
+  const data = pages.map(extractDataFromPage);
+  fs.writeFileSync("public/data.json", JSON.stringify(data, null, 2));
+  console.log("✅ Archivo data.json actualizado correctamente.");
 }
 
 main();
