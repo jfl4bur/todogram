@@ -15,3 +15,11 @@ git push origin main
 ```
 git 
 ```
+# Guardar (stash) los cambios temporales
+```bash
+git stash
+git pull --rebase origin main
+git stash pop
+git push origin main
+```
+Esto guarda tus cambios actuales en un `stash` temporal, hace el pull con rebase, y luego vuelve a aplicar tus cambios encima.
