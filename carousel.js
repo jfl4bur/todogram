@@ -1,4 +1,4 @@
-const API_URL = "https://jfl4bur.github.io/Todogram/data.json"; // Cambia esta URL si hace falta
+const API_URL = "https://jfl4bur.github.io/Todogram/public/data.json"; // Cambia esta URL si hace falta
 
 const carousel = document.getElementById("carousel");
 const modal = document.getElementById("modal");

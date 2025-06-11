@@ -1,88 +1,64 @@
 import fs from "fs";
-import fetch from "node-fetch";
+import { Client } from "@notionhq/client";
+import { config } from "dotenv";
 
-const NOTION_API_KEY = process.env.NOTION_API_KEY;
-const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+config();
 
-async function queryNotionDatabase() {
-  const url = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${NOTION_API_KEY}`,
-      "Notion-Version": "2022-06-28",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ page_size: 100 }),
-  });
-  if (!res.ok) {
-    throw new Error(`Error Notion API: ${res.status} ${res.statusText}`);
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
+const databaseId = process.env.NOTION_DATABASE_ID;
+
+async function getDatabaseItems() {
+  const pages = [];
+  let cursor = undefined;
+
+  while (true) {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      start_cursor: cursor,
+    });
+
+    pages.push(...response.results);
+
+    if (!response.has_more) break;
+    cursor = response.next_cursor;
   }
-  const data = await res.json();
-  return data.results;
+
+  return pages;
 }
 
-function extractNotionData(page) {
-  const props = page.properties;
-
-  const title = props.Título?.title?.[0]?.plain_text || "Sin título";
-  const tmdb_id = props["ID TMDB"]?.number || null;
-
-  return { title, tmdb_id };
-}
-
-async function fetchTmdbDetails(tmdb_id) {
-  if (!tmdb_id) return null;
-
-  const url = `https://api.themoviedb.org/3/movie/${tmdb_id}?api_key=${TMDB_API_KEY}&language=es-ES`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.warn(`TMDB error para id ${tmdb_id}: ${res.statusText}`);
-    return null;
-  }
-  return await res.json();
+function extractDataFromPage(page) {
+  return {
+    "Título": page.properties["Título"]?.title?.[0]?.plain_text || "",
+    "ID TMDB": page.properties["ID TMDB"]?.rich_text?.[0]?.plain_text || "",
+    "TMDB": page.properties["ID TMDB"]?.rich_text?.[0]?.plain_text
+      ? `https://www.themoviedb.org/movie/${page.properties["ID TMDB"]?.rich_text?.[0]?.plain_text}`
+      : "",
+    "Synopsis": page.properties["Synopsis"]?.rich_text?.[0]?.plain_text || "",
+    "Carteles": page.properties["Carteles"]?.files?.[0]?.file?.url || "",
+    "Portada": page.properties["Portada"]?.files?.[0]?.file?.url || "",
+    "Géneros": page.properties["Géneros"]?.multi_select?.map(tag => tag.name).join(" · ") || "",
+    "Año": page.properties["Año"]?.number || "",
+    "Duración": page.properties["Duración"]?.number || "",
+    "Puntuación 1-10": page.properties["Puntuación"]?.number || "",
+    "Trailer": page.properties["Trailer"]?.url || "",
+    "Ver Película": page.properties["Ver Película"]?.url || "",
+    "Audios": page.properties["Audios"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "Subtítulos": page.properties["Subtítulos"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "Título original": page.properties["Título original"]?.rich_text?.[0]?.plain_text || "",
+    "Productora(s)": page.properties["Productora(s)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "Idioma(s) original(es)": page.properties["Idioma(s) original(es)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "País(es)": page.properties["País(es)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "Escritor(es)": page.properties["Escritor(es)"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "Reparto principal": page.properties["Reparto principal"]?.multi_select?.map(tag => tag.name).join(", ") || "",
+    "Categoría": page.properties["Categoría"]?.select?.name || ""
+  };
 }
 
 async function main() {
-  if (!NOTION_API_KEY || !NOTION_DATABASE_ID || !TMDB_API_KEY) {
-    console.error("Variables de entorno NO configuradas correctamente.");
-    process.exit(1);
-  }
-
-  console.log("Consultando Notion...");
-  const notionPages = await queryNotionDatabase();
-
-  const results = [];
-
-  for (const page of notionPages) {
-    const { title, tmdb_id } = extractNotionData(page);
-
-    console.log(`Procesando: ${title} (TMDB ID: ${tmdb_id})`);
-
-    const tmdbData = await fetchTmdbDetails(tmdb_id);
-
-    results.push({
-      title,
-      tmdb_id,
-      overview: tmdbData?.overview || "",
-      genres: tmdbData?.genres?.map(g => g.name) || [],
-      release_date: tmdbData?.release_date || "",
-      poster_path: tmdbData?.poster_path
-        ? `https://image.tmdb.org/t/p/w500${tmdbData.poster_path}`
-        : "",
-      vote_average: tmdbData?.vote_average || 0,
-      runtime: tmdbData?.runtime || 0,
-    });
-  }
-
-  if (!fs.existsSync("public")) fs.mkdirSync("public");
-  fs.writeFileSync("public/data.json", JSON.stringify(results, null, 2));
-
-  console.log("Archivo public/data.json generado.");
+  const pages = await getDatabaseItems();
+  const data = pages.map(extractDataFromPage);
+  fs.writeFileSync("public/data.json", JSON.stringify(data, null, 2));
+  console.log("✅ Archivo data.json actualizado correctamente.");
 }
 
-main().catch(e => {
-  console.error("Error general:", e);
-  process.exit(1);
-});
+main();

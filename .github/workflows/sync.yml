@@ -6,6 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -31,5 +32,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add public/data.json
           git commit -m "Actualizar data.json desde Notion + TMDB [ci skip]" || echo "No hay cambios para commitear"
-          git push
-
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
