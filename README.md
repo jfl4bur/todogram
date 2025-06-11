@@ -11,6 +11,29 @@ git commit -m "Actualización: Fixes y mejoras en main.js, data.json y workflow"
 git push origin main
 ```
 
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="images/logo.png" alt="Logo" width="180" height="180">
+  </a>
+
+  <h3 align="center">Script Películas / series</h3>
+
+  <p align="center">
+    An awesome README template to jumpstart your projects!
+    <br />
+    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    &middot;
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
+
 # 🎬 Clon de Rakuten.tv – Softr + Notion + TMDB + GitHub Actions
 
 Este proyecto es un clon funcional de la interfaz de Rakuten.tv, creado con [Softr](https://www.softr.io/), usando una base de datos en [Notion](https://www.notion.so/) como backend de contenido, y enriquecido automáticamente con datos de [TMDB (The Movie Database)](https://www.themoviedb.org/). GitHub Actions se usa para automatizar la extracción y combinación de datos, y publicar un archivo `data.json` que alimenta la web.
