@@ -10,27 +10,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-          node-version: '18'
+          node-version: "18"
 
       - name: Install dependencies
         run: npm install
 
-      - name: Run main.js
+      - name: Run sync script
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: node main.js
 
-      - name: Copy index.html to public
-        run: cp index.html public/index.html
+      - name: Commit and push data.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add public/data.json
+          git commit -m "Actualizar data.json desde Notion + TMDB [ci skip]" || echo "No hay cambios para commitear"
+          git push
 
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
