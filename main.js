@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 import { Client } from '@notionhq/client';
-import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -45,6 +44,11 @@ function extractProperty(properties, name) {
       return prop.number || '';
     case 'relation':
       return prop.relation.map(r => r.id).join(',');
+    case 'formula':
+      console.warn(`⚠️ Tipo no manejado para "${name}": formula`);
+      return '';
+    case 'files':
+      return prop.files[0]?.file?.url || prop.files[0]?.external?.url || '';
     default:
       console.warn(`⚠️ Tipo no manejado para "${name}":`, prop.type);
       return '';
@@ -53,6 +57,11 @@ function extractProperty(properties, name) {
 
 async function main() {
   const items = await getDatabaseItems();
+
+  // Asegurarse de que la carpeta 'public/' existe
+  if (!fs.existsSync('public')) {
+    fs.mkdirSync('public');
+  }
 
   const data = items.map((page) => {
     const properties = page.properties;
@@ -63,7 +72,7 @@ async function main() {
     console.log('Video iframe 1:', extractProperty(properties, 'Video iframe 1'));
 
     return {
-      "Título": extractProperty(properties, 'Título'),
+      "Título": titulo,
       "ID TMDB": extractProperty(properties, 'ID TMDB'),
       "TMDB": extractProperty(properties, 'TMDB'),
       "Synopsis": extractProperty(properties, 'Synopsis'),
@@ -89,8 +98,8 @@ async function main() {
     };
   });
 
-  fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-  console.log('✅ Archivo data.json generado correctamente.');
+  fs.writeFileSync('public/data.json', JSON.stringify(data, null, 2));
+  console.log('✅ Archivo public/data.json generado correctamente.');
 }
 
 main().catch((error) => {

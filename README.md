@@ -24,4 +24,8 @@ git push origin main
 ```
 Esto guarda tus cambios actuales en un `stash` temporal, hace el pull con rebase, y luego vuelve a aplicar tus cambios encima.
 
-je
+
+
+## Autores
+| [<img src="https://avatars.githubusercontent.com/u/74684004?v=4" width=115><br><sub>@Todogram</sub>](https://github.com/jfl4bur) |
+| :---: | :---: | :---: |
