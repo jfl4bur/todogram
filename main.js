@@ -26,7 +26,7 @@ async function getDatabaseItems() {
 function extractProperty(properties, name) {
   const prop = properties[name];
   if (!prop) {
-    console.warn(`⚠️ Propiedad no encontrada: "${name}"`);
+    // console.warn(`⚠️ Propiedad no encontrada: "${name}"`);
     return '';
   }
   switch (prop.type) {
@@ -45,12 +45,12 @@ function extractProperty(properties, name) {
     case 'relation':
       return prop.relation.map(r => r.id).join(',');
     case 'formula':
-      console.warn(`⚠️ Tipo no manejado para "${name}": formula`);
+      // console.warn(`⚠️ Tipo no manejado para "${name}": formula`);
       return '';
     case 'files':
       return prop.files[0]?.file?.url || prop.files[0]?.external?.url || '';
     default:
-      console.warn(`⚠️ Tipo no manejado para "${name}":`, prop.type);
+      // console.warn(`⚠️ Tipo no manejado para "${name}":`, prop.type);
       return '';
   }
 }
