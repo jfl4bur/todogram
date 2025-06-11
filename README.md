@@ -24,4 +24,4 @@ git push origin main
 ```
 Esto guarda tus cambios actuales en un `stash` temporal, hace el pull con rebase, y luego vuelve a aplicar tus cambios encima.
 
-jeje
+je
