@@ -72,7 +72,7 @@ async function main() {
     console.log('Video iframe 1:', extractProperty(properties, 'Video iframe 1'));
 
     return {
-      "Título": titulo,
+      "Título": extractProperty(properties, 'Título'),
       "ID TMDB": extractProperty(properties, 'ID TMDB'),
       "TMDB": extractProperty(properties, 'TMDB'),
       "Synopsis": extractProperty(properties, 'Synopsis'),
