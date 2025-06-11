@@ -26,21 +26,12 @@ async function fetchNotionData() {
         { start_cursor: nextCursor },
         { headers }
       );
-
       pages.push(...res.data.results);
       hasMore = res.data.has_more;
       nextCursor = res.data.next_cursor;
-    } catch (error) {
-      if (error.response) {
-        console.error("❌ Error en la respuesta de Notion:");
-        console.error("Código:", error.response.status);
-        console.error("Detalles:", JSON.stringify(error.response.data, null, 2));
-      } else if (error.request) {
-        console.error("❌ No se recibió respuesta de Notion.");
-      } else {
-        console.error("❌ Error al configurar la solicitud a Notion:", error.message);
-      }
-      process.exit(1);
+    } catch (err) {
+      console.error("❌ Error fetching Notion data:", err.message);
+      break;
     }
   }
 
@@ -83,112 +74,74 @@ async function fetchTMDBData(id) {
       `https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits`
     );
     return res.data;
-  } catch (error) {
-    if (error.response) {
-      console.error("❌ Error en la respuesta de TMDB:");
-      console.error("Código:", error.response.status);
-      console.error("Detalles:", JSON.stringify(error.response.data, null, 2));
-    } else if (error.request) {
-      console.error("❌ No se recibió respuesta de TMDB.");
-    } else {
-      console.error("❌ Error al configurar la solicitud a TMDB:", error.message);
-    }
+  } catch (err) {
+    console.error("❌ Error fetching TMDB data:", err.message);
     return null;
   }
 }
 
 function fillMissingFields(item, tmdbData) {
-  const getIfEmpty = (value, fallback) =>
-    value?.toString().trim() ? value : fallback;
+  const getIfEmpty = (value, fallback) => value?.toString().trim() ? value : fallback;
 
   return {
     ...item,
-    "Productora(s)": getIfEmpty(
-      item["Productora(s)"],
-      tmdbData.production_companies?.map(p => p.name).join(", ") || ""
-    ),
-    "Idioma(s) original(es)": getIfEmpty(
-      item["Idioma(s) original(es)"],
-      tmdbData.original_language || ""
-    ),
-    "País(es)": getIfEmpty(
-      item["País(es)"],
-      tmdbData.production_countries?.map(c => c.name).join(", ") || ""
-    ),
-    "Director(es)": getIfEmpty(
-      item["Director(es)"],
-      tmdbData.credits?.crew
-        ?.filter(p => p.job === "Director")
-        .map(p => p.name)
-        .join(", ") || ""
-    ),
-    "Escritor(es)": getIfEmpty(
-      item["Escritor(es)"],
-      tmdbData.credits?.crew
-        ?.filter(p => p.department === "Writing")
-        .map(p => p.name)
-        .join(", ") || ""
-    ),
-    "Reparto principal": getIfEmpty(
-      item["Reparto principal"],
-      tmdbData.credits?.cast?.slice(0, 5).map(a => a.name).join(", ") || ""
-    ),
+    "Productora(s)": getIfEmpty(item["Productora(s)"], tmdbData.production_companies?.map(p => p.name).join(", ") || ""),
+    "Idioma(s) original(es)": getIfEmpty(item["Idioma(s) original(es)"], tmdbData.original_language || ""),
+    "País(es)": getIfEmpty(item["País(es)"], tmdbData.production_countries?.map(c => c.name).join(", ") || ""),
+    "Director(es)": getIfEmpty(item["Director(es)"], tmdbData.credits?.crew?.filter(p => p.job === "Director").map(p => p.name).join(", ") || ""),
+    "Escritor(es)": getIfEmpty(item["Escritor(es)"], tmdbData.credits?.crew?.filter(p => p.department === "Writing").map(p => p.name).join(", ") || ""),
+    "Reparto principal": getIfEmpty(item["Reparto principal"], tmdbData.credits?.cast?.slice(0, 5).map(a => a.name).join(", ") || ""),
   };
 }
 
 async function main() {
-  try {
-    const notionPages = await fetchNotionData();
-    const data = [];
+  const notionPages = await fetchNotionData();
+  const data = [];
 
-    for (const page of notionPages) {
-      const props = page.properties;
+  for (const page of notionPages) {
+    const props = page.properties;
 
-      const item = {
-        "Título": extractText(props["Título"]),
-        "ID TMDB": extractText(props["ID TMDB"]),
-        "TMDB": extractText(props["TMDB"]),
-        "Synopsis": extractText(props["Synopsis"]),
-        "Carteles": extractText(props["Carteles"]),
-        "Portada": extractText(props["Portada"]),
-        "Géneros": extractText(props["Géneros"]),
-        "Año": extractText(props["Año"]),
-        "Duración": extractText(props["Duración"]),
-        "Puntuación 1-10": extractText(props["Puntuación"]),
-        "Trailer": extractText(props["Trailer"]),
-        "Ver Película": extractText(props["Ver Película"]),
-        "Audios": extractText(props["Audios"]),
-        "Subtítulos": extractText(props["Subtítulos"]),
-        "Título original": extractText(props["Título original"]),
-        "Productora(s)": extractText(props["Productora(s)"]),
-        "Idioma(s) original(es)": extractText(props["Idioma(s) original(es)"]),
-        "País(es)": extractText(props["País(es)"]),
-        "Director(es)": extractText(props["Director(es)"]),
-        "Escritor(es)": extractText(props["Escritor(es)"]),
-        "Reparto principal": extractText(props["Reparto principal"]),
-        "Categoría": extractText(props["Categoría"]),
-        "Video iframe": extractText(props["Video iframe"]),
-        "Video iframe 1": extractText(props["Video iframe 1"]),
-      };
+    const item = {
+      "Título": extractText(props["Título"]),
+      "ID TMDB": extractText(props["ID TMDB"]),
+      "TMDB": extractText(props["TMDB"]),
+      "Synopsis": extractText(props["Synopsis"]),
+      "Carteles": extractText(props["Carteles"]),
+      "Portada": extractText(props["Portada"]),
+      "Géneros": extractText(props["Géneros"]),
+      "Año": extractText(props["Año"]),
+      "Duración": extractText(props["Duración"]),
+      "Puntuación 1-10": extractText(props["Puntuación"]),
+      "Trailer": extractText(props["Trailer"]),
+      "Ver Película": extractText(props["Ver Película"]),
+      "Audios": extractText(props["Audios"]),
+      "Subtítulos": extractText(props["Subtítulos"]),
+      "Título original": extractText(props["Título original"]),
+      "Productora(s)": extractText(props["Productora(s)"]),
+      "Idioma(s) original(es)": extractText(props["Idioma(s) original(es)"]),
+      "País(es)": extractText(props["País(es)"]),
+      "Director(es)": extractText(props["Director(es)"]),
+      "Escritor(es)": extractText(props["Escritor(es)"]),
+      "Reparto principal": extractText(props["Reparto principal"]),
+      "Categoría": extractText(props["Categoría"]),
+      "Video iframe": extractText(props["Video iframe"]),
+      "Video iframe 1": extractText(props["Video iframe 1"]),
+    };
 
-      const tmdbId = extractTMDBId(item["ID TMDB"], item["TMDB"]);
+    const tmdbId = extractTMDBId(item["ID TMDB"], item["TMDB"]);
 
-      if (tmdbId) {
-        const tmdbData = await fetchTMDBData(tmdbId);
-        if (tmdbData) {
-          Object.assign(item, fillMissingFields(item, tmdbData));
-        }
+    if (tmdbId) {
+      const tmdbData = await fetchTMDBData(tmdbId);
+      if (tmdbData) {
+        Object.assign(item, fillMissingFields(item, tmdbData));
       }
-
-      data.push(item);
     }
 
-    await fs.writeFile("public/data.json", JSON.stringify(data, null, 2), "utf-8");
-    console.log("✅ Archivo data.json actualizado con datos de Notion + TMDB.");
-  } catch (error) {
-    console.error("❌ Error inesperado en la sincronización:", error.message);
-    process.exit(1);
+    data.push(item);
   }
+
+  await fs.writeFile("public/data.json", JSON.stringify(data, null, 2), "utf-8");
+  console.log("✅ Archivo data.json actualizado con datos de Notion + TMDB.");
 }
 
 main();

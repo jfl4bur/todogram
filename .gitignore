@@ -26,3 +26,6 @@ Thumbs.db
 # Ignorar los scripts de sincronización locales
 todogram.bat
 todogram.ps1
+
+#  SECRET_KEYS
+.env
