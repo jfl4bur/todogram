@@ -26,7 +26,10 @@ async function getDatabaseItems() {
 
 function extractProperty(properties, name) {
   const prop = properties[name];
-  if (!prop) return '';
+  if (!prop) {
+    console.warn(`⚠️ Propiedad no encontrada: "${name}"`);
+    return '';
+  }
   switch (prop.type) {
     case 'title':
       return prop.title.map(t => t.plain_text).join('');
@@ -43,6 +46,7 @@ function extractProperty(properties, name) {
     case 'relation':
       return prop.relation.map(r => r.id).join(',');
     default:
+      console.warn(`⚠️ Tipo no manejado para "${name}":`, prop.type);
       return '';
   }
 }
@@ -52,6 +56,12 @@ async function main() {
 
   const data = items.map((page) => {
     const properties = page.properties;
+
+    // Logs para depuración
+    console.log('➡️ Procesando:', extractProperty(properties, 'Título'));
+    console.log('Video iframe:', extractProperty(properties, 'Video iframe'));
+    console.log('Video iframe 1:', extractProperty(properties, 'Video iframe 1'));
+
     return {
       "Título": extractProperty(properties, 'Título'),
       "ID TMDB": extractProperty(properties, 'ID TMDB'),
@@ -75,7 +85,7 @@ async function main() {
       "Reparto principal": extractProperty(properties, 'Reparto principal'),
       "Categoría": extractProperty(properties, 'Categoría'),
       "Video iframe": extractProperty(properties, 'Video iframe'),
-      "Video iframe1": extractProperty(properties, 'Video iframe1'),
+      "Video iframe 1": extractProperty(properties, 'Video iframe 1'),
     };
   });
 
