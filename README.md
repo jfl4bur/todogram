@@ -1,3 +1,6 @@
+<a id="readme-top"></a>
+<!-- LOGOTIPO DEL PROYECTO -->
+<br />
 <p align="center">
   <a href="https://github.com/jfl4bur/Todogram">
     <img src="https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge" alt="Contributors" />
