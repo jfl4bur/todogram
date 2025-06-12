@@ -24,13 +24,29 @@
     <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explora la documentación »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">Ver Demo</a>
+    <a href="https://jfl4bur.github.io/Todogram/">Ver Demo</a>
     &middot;
-    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Informar de un ERROR</a>
+    <a href="https://github.com/jfl4bur/Todogram/issues/new?labels=bug&template=bug-report---.md">Informar de un ERROR</a>
     &middot;
-    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Solicitar Función</a>
+    <a href="https://github.com/jfl4bur/Todogram/issues/new?labels=enhancement&template=feature-request---.md">Solicitar Función</a>
   </p>
 </div>
+
+
+### Construido con
+
+Esta sección debe enumerar los principales frameworks/bibliotecas utilizados para el arranque de su proyecto. Deje los complementos/plugins para la sección de agradecimientos. Aquí tiene algunos ejemplos.
+
+* [![Siguiente][Siguiente.js]][Siguiente-url]
+* [![React][React.js]][URL de React]
+* [![Vue][Vue.js]][URL de Vue]
+* [![Angular][Angular.io]][URL de Angular]
+* [![Svelte][Svelte.dev]][URL de Svelte]
+* [![Laravel][Laravel.com]][URL de Laravel]
+* [![Bootstrap][Bootstrap.com]][URL de Bootstrap]
+* [![JQuery][JQuery.com]][URL de JQuery]
+
+<p align="right">(<a href="#readme-top">volver arriba</a>)</p>
 
 # Uso 🚀
 Subir a Github
