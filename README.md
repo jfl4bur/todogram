@@ -11,7 +11,6 @@
     <img src="https://img.shields.io/badge/LinkedIn--blue?style=for-the-badge&logo=linkedin" alt="LinkedIn" />
   </a>
 </p>
-
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
