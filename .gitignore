@@ -29,3 +29,6 @@ todogram.ps1
 
 #  SECRET_KEYS
 .env
+
+
+auto-push.ps1
