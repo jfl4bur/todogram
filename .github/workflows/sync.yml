@@ -1,7 +1,10 @@
 name: Sync Notion with TMDB
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:    # Manual
+  push:                 # Al hacer push
+  schedule:             # Cada día a las 03:00 UTC
+    - cron: '0 3 * * *'
 
 jobs:
   build:
@@ -24,7 +27,7 @@ jobs:
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-      run: npm start
+      run: node sync.js
 
     - name: Commit and push data.json
       run: |

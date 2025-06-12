@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client";
 import dotenv from "dotenv";
 import axios from "axios";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import pLimit from "p-limit";
 import { createSpinner } from "nanospinner";
@@ -13,75 +13,23 @@ dotenv.config();
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const databaseId = process.env.NOTION_DATABASE_ID;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
-
 const headers = {
   Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
   "Notion-Version": "2022-06-28",
 };
+const limit = pLimit(20); // concurrencia
 
-const limit = pLimit(20); // Mayor concurrencia para rendimiento
-
-<<<<<<< HEAD
-  while (hasMore) {
-    try {
-      const body = nextCursor ? { start_cursor: nextCursor } : {};
-      const res = await axios.post(
-        `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
-        body,
-        { headers }
-      );
-      pages.push(...res.data.results);
-      hasMore = res.data.has_more;
-      nextCursor = res.data.next_cursor;
-    } catch (err) {
-      console.error("❌ Error fetching Notion data:", err.response?.data || err.message);
-      process.exit(1);
-    }
-  }
-
-  return pages;
-}
-
-function extractText(property) {
-  if (!property) return "";
-  switch (property.type) {
-    case "title":
-    case "rich_text":
-      return property[property.type].map(rt => rt.plain_text).join("");
-    case "select":
-      return property.select?.id || "";
-    case "multi_select":
-      return property.multi_select.map(opt => opt.id).join(", ");
-    case "url":
-      return property.url || "";
-    case "number":
-      return property.number?.toString() || "";
-    case "files":
-      const file = property.files[0];
-      return file?.external?.url || file?.file?.url || "";
-    default:
-      return "";
-  }
-}
-
-function extractTMDBId(notionId, tmdbUrl) {
-  if (notionId) return notionId.trim();
-  const m = tmdbUrl?.match(/\/(movie|tv)\/(\d+)/);
-  return m ? m[2] : null;
-}
-=======
-// Utilidad para extraer texto plano de propiedades
 const extractText = (property) => {
   if (!property) return "";
   switch (property.type) {
     case "title":
-      return property.title.map((t) => t.plain_text).join("");
+      return property.title.map(t => t.plain_text).join("");
     case "rich_text":
-      return property.rich_text.map((t) => t.plain_text).join("");
+      return property.rich_text.map(t => t.plain_text).join("");
     case "select":
       return property.select?.name || "";
     case "multi_select":
-      return property.multi_select.map((t) => t.name).join(", ");
+      return property.multi_select.map(t => t.name).join(", ");
     case "url":
       return property.url || "";
     case "files":
@@ -108,7 +56,6 @@ const getAllPages = async () => {
   } while (cursor);
   return results;
 };
->>>>>>> 9d394c6 (✅ Añadir progreso y soporte GitHub Actions)
 
 const getRelationNames = async (ids, label, bar, step, total) => {
   const names = [];
@@ -120,7 +67,7 @@ const getRelationNames = async (ids, label, bar, step, total) => {
       const name = titleProp?.title?.map(t => t.plain_text).join("") || "";
       if (name) names.push(name);
     } catch {
-      console.warn(`⚠️ No se pudo obtener la relación con ID ${id}`);
+      console.warn(`⚠️ No se pudo obtener relación con ID ${id}`);
     }
     bar.update(step, {
       progress: step + i / total,
@@ -137,28 +84,6 @@ const extractTMDBid = (url) => {
 
 const fetchTMDBData = async (title, fallbackType = "movie") => {
   try {
-<<<<<<< HEAD
-    const res = await axios.get(
-      `https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits`
-    );
-    return res.data;
-  } catch (err) {
-    console.error("❌ Error fetching TMDB data:", err.response?.data || err.message);
-    return null;
-  }
-}
-
-function fillMissingFields(item, tmdb) {
-  const get = (k, fallback) => item[k] || fallback;
-  return {
-    ...item,
-    "Productora(s)": get("Productora(s)", tmdb?.production_companies?.map(p => p.name).join(", ") || ""),
-    "Idioma(s) original(es)": get("Idioma(s) original(es)", tmdb?.original_language || ""),
-    "País(es)": get("País(es)", tmdb?.production_countries?.map(c => c.name).join(", ") || ""),
-    "Director(es)": get("Director(es)", tmdb?.credits?.crew?.filter(c => c.job === "Director").map(c => c.name).join(", ") || ""),
-    "Escritor(es)": get("Escritor(es)", tmdb?.credits?.crew?.filter(c => c.department === "Writing").map(c => c.name).join(", ") || ""),
-    "Reparto principal": get("Reparto principal", tmdb?.credits?.cast?.slice(0, 5).map(c => c.name).join(", ") || "")
-=======
     const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`;
     const searchResponse = await axios.get(searchUrl);
 
@@ -202,7 +127,6 @@ function fillMissingFields(item, tmdb) {
 
 const processItem = async (page, bar, index, total) => {
   const p = page.properties;
-
   const titulo = extractText(p["Título"]);
   const urlTMDB = extractText(p["TMDB"]);
   const idTmdb = extractTMDBid(urlTMDB);
@@ -211,18 +135,14 @@ const processItem = async (page, bar, index, total) => {
 
   const getIds = (rel) => rel?.relation?.map(r => r.id) || [];
 
-  bar.update(index, {
-    message: `Sincronizando: Géneros... (${index + 1}/${total})`
-  });
   const generos = await getRelationNames(getIds(p["Géneros"]), "Géneros", bar, index, total);
-
   const audios = await getRelationNames(getIds(p["Audios"]), "Audios", bar, index, total);
   const subs = await getRelationNames(getIds(p["Subtítulos"]), "Subtítulos", bar, index, total);
   const categoria = await getRelationNames(getIds(p["Categoría"]), "Categoría", bar, index, total);
 
   bar.update(index, {
     progress: index + 1,
-    message: `Procesado (${index + 1}/${total})`
+    message: `Procesado (${index + 1}/${total})`,
   });
 
   return {
@@ -250,67 +170,11 @@ const processItem = async (page, bar, index, total) => {
     "Categoría": categoria,
     "Video iframe": extractText(p["Video iframe"]),
     "Video iframe 1": extractText(p["Video iframe 1"]),
->>>>>>> 9d394c6 (✅ Añadir progreso y soporte GitHub Actions)
   };
 };
 
-<<<<<<< HEAD
-async function main() {
-  const pages = await fetchNotionData();
-  console.log(`✅ ${pages.length} página(s) obtenidas de Notion.`);
+const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-  if (pages.length === 0) {
-    console.error("❌ No hay páginas en Notion. Deteniendo.");
-    process.exit(1);
-  }
-
-  await fs.mkdir("public", { recursive: true });
-
-  const data = [];
-  for (const page of pages) {
-    const p = page.properties;
-    const item = {
-      "Título": extractText(p["Título"]),
-      "ID TMDB": extractText(p["ID TMDB"]),
-      "TMDB": extractText(p["TMDB"]),
-      "Synopsis": extractText(p["Synopsis"]),
-      "Carteles": extractText(p["Carteles"]),
-      "Portada": extractText(p["Portada"]),
-      "Géneros": extractText(p["Géneros"]),
-      "Año": extractText(p["Año"]),
-      "Duración": extractText(p["Duración"]),
-      "Puntuación 1-10": extractText(p["Puntuación 1-10"]),
-      "Trailer": extractText(p["Trailer"]),
-      "Ver Película": extractText(p["Ver Película"]),
-      "Audios": extractText(p["Audios"]),
-      "Subtítulos": extractText(p["Subtítulos"]),
-      "Título original": extractText(p["Título original"]),
-      "Productora(s)": extractText(p["Productora(s)"]),
-      "Idioma(s) original(es)": extractText(p["Idioma(s) original(es)"]),
-      "País(es)": extractText(p["País(es)"]),
-      "Director(es)": extractText(p["Director(es)"]),
-      "Escritor(es)": extractText(p["Escritor(es)"]),
-      "Reparto principal": extractText(p["Reparto principal"]),
-      "Categoría": extractText(p["Categoría"]),
-      "Video iframe": extractText(p["Video iframe"]),
-      "Video iframe 1": extractText(p["Video iframe 1"]),
-    };
-
-    const tmdbId = extractTMDBId(item["ID TMDB"], item["TMDB"]);
-    if (tmdbId) {
-      const tmdbData = await fetchTMDBData(tmdbId);
-      if (tmdbData) Object.assign(item, fillMissingFields(item, tmdbData));
-    }
-
-    data.push(item);
-  }
-
-  await fs.writeFile("public/data.json", JSON.stringify(data, null, 2), "utf-8");
-  console.log("✅ public/data.json actualizado con Notion + TMDB.");
-}
-
-main();
-=======
 const main = async () => {
   const spinner = createSpinner("🔁 Obteniendo páginas de Notion...").start();
   const pages = await getAllPages();
@@ -335,15 +199,44 @@ const main = async () => {
 
   const outputDir = path.join(process.cwd(), "public");
   const outputFile = path.join(outputDir, "data.json");
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-  fs.writeFileSync(outputFile, JSON.stringify(items, null, 2), "utf-8");
+  let previousData = [];
+  try {
+    const existing = await fs.readFile(outputFile, "utf-8");
+    previousData = JSON.parse(existing);
+  } catch {
+    console.log("📁 No se encontró archivo anterior. Se generará uno nuevo.");
+  }
 
-  console.log("✅ Archivo 'public/data.json' actualizado con éxito.");
+  const changes = [];
+  const previousMap = new Map(previousData.map(item => [item["Título"], item]));
+
+  for (const item of items) {
+    const existing = previousMap.get(item["Título"]);
+    if (!existing) {
+      changes.push(`🆕 Nuevo: ${item["Título"]}`);
+    } else if (!deepEqual(item, existing)) {
+      changes.push(`✏️ Actualizado: ${item["Título"]}`);
+    }
+  }
+
+  const removed = previousData
+    .filter(prev => !items.find(i => i["Título"] === prev["Título"]))
+    .map(r => `🗑️ Eliminado: ${r["Título"]}`);
+
+  changes.push(...removed);
+
+  await fs.mkdir(outputDir, { recursive: true });
+  await fs.writeFile(outputFile, JSON.stringify(items, null, 2), "utf-8");
+
+  console.log("✅ Archivo actualizado: public/data.json");
+
+  if (changes.length === 0) {
+    console.log("🔍 No se detectaron cambios respecto al archivo anterior.");
+  } else {
+    console.log("📝 Cambios detectados:");
+    changes.forEach(c => console.log(" -", c));
+  }
 };
 
-main().catch((err) => {
-  console.error("❌ Error:", err);
-  process.exit(1);
-});
->>>>>>> 9d394c6 (✅ Añadir progreso y soporte GitHub Actions)
+main();
