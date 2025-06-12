@@ -39,7 +39,7 @@ Subir a Github
 git add .
 ```
 ```
-git commit -m "Actualización: Fixes y mejoras en main.js, data.json y workflow"
+git commit -m "✅ Actualización: documentación de main.js, data.json y workflow"
 ```
 ```
 git push origin main
