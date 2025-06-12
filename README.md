@@ -9,19 +9,6 @@
   </a>
 </p>
 
-# Uso 🚀
-Subir a Github
-
-```
-git add .
-```
-```
-git commit -m "Actualización: Fixes y mejoras en main.js, data.json y workflow"
-```
-```
-git push origin main
-```
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -44,6 +31,19 @@ git push origin main
     <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
+
+# Uso 🚀
+Subir a Github
+
+```
+git add .
+```
+```
+git commit -m "Actualización: Fixes y mejoras en main.js, data.json y workflow"
+```
+```
+git push origin main
+```
 
 # 🎬 Clon de Rakuten.tv – Softr + Notion + TMDB + GitHub Actions
 
