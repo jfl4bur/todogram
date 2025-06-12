@@ -225,3 +225,37 @@ Este proyecto es de uso privado. Si deseas usarlo o adaptarlo para distribución
 ## Autores
 | [<img src="https://avatars.githubusercontent.com/u/74684004?v=4" width=115><br><sub>@Todogram</sub>](https://github.com/jfl4bur) |
 | :---: | :---: | :---: |
+
+
+
+<!-- ENLACES E IMÁGENES DE MARKDOWN -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[escudo de colaboradores]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[URL de los colaboradores]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
+[tenedores-escudo]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[url de la bifurcación]: https://github.com/othneildrew/Best-README-Template/network/members
+[estrellas-escudo]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
+[URL de estrellas]: https://github.com/othneildrew/Best-README-Template/stargazers
+[Problemas-escudo]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[url de problemas]: https://github.com/othneildrew/Best-README-Template/issues
+[licencia-escudo]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
+[URL de la licencia]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/othneildrew
+[captura de pantalla del producto]: imágenes/captura de pantalla.png
+[Siguiente.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[Siguiente URL]: https://nextjs.org/
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[URL de React]: https://reactjs.org/
+[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
+[Vue-url]: https://vuejs.org/
+[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
+[URL angular]: https://angular.io/
+[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
+[URL de Svelte]: https://svelte.dev/
+[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
+[URL de Laravel]: https://laravel.com
+[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
+[URL de Bootstrap]: https://getbootstrap.com
+[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
+[URL de JQuery]: https://jquery.com
