@@ -1,0 +1,9 @@
+La Sin Licencia
+
+Se trata de un software gratuito y sin gravámenes publicado en el dominio público.
+
+Cualquiera es libre de copiar, modificar, publicar, usar, compilar, vender o distribuir este software, ya sea en forma de código fuente o como binario compilado, para cualquier propósito, comercial o no comercial, y por cualquier medio.
+
+En las jurisdicciones que reconocen las leyes de derechos de autor, el autor o los autores de este software ceden todos los derechos de autor sobre el software al dominio público. Realizamos esta cesión en beneficio del público en general y en detrimento de nuestros herederos y sucesores. Pretendemos que esta cesión constituya una renuncia manifiesta y perpetua a todos los derechos presentes y futuros sobre este software bajo la ley de derechos de autor.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO, ENTRE OTRAS, LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD, YA SEA EN ACCIÓN CONTRACTUAL, EXTRACONTRACTUAL O DE OTRO TIPO, QUE SURJA DEL SOFTWARE O DEL USO U OTRAS RELACIONES CON EL MISMO.
