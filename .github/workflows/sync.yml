@@ -1,38 +1,39 @@
 name: Sync Notion with TMDB
 
 on:
-  workflow_dispatch:    # Manual
-  push:                 # Al hacer push
-  schedule:             # Cada día a las 03:00 UTC
+  workflow_dispatch:
+  push:
+  schedule:
     - cron: '0 3 * * *'
 
 jobs:
   build:
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: "18"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run main script
-      env:
-        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-        TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-      run: node main.js
+      - name: Run main script
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: node main.js
 
-    - name: Commit and push data.json
-      run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
-        git add public/data.json
-        git diff --cached --quiet || git commit -m "Actualizar data.json desde Notion + TMDB [ci skip]"
-        git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
+      - name: Commit and push data.json
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add public/data.json
+          git diff --cached --quiet || git commit -m "Actualizar data.json desde Notion + TMDB [ci skip]"
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
