@@ -1,5 +1,11 @@
 import { execSync } from 'child_process';
 import readline from 'readline/promises';
+import fs from 'fs';
+import path from 'path';
+
+let isProcessing = false;
+const DATA_FILE = 'public/data.json';
+const CHECK_INTERVAL = 5000; // 5 segundos
 
 function exec(cmd, silent = false) {
   try {
@@ -54,37 +60,55 @@ function handleMenuOption(option) {
   }
 }
 
-async function startInteractiveMenu() {
-  promptMenu();
+async function handleConflictAutomatically() {
+  console.log('🤖 Resolviendo conflicto automáticamente...');
   
-  const rl = readline.createInterface({ 
-    input: process.stdin, 
-    output: process.stdout 
-  });
-  
+  // Estrategia por defecto: stash, pull, stash pop
   try {
-    const answer = await rl.question('👉 Escribe el número de opción: ');
-    handleMenuOption(answer.trim());
+    console.log('🔄 Guardando cambios en stash...');
+    exec('git stash');
+    
+    console.log('🔄 Haciendo pull...');
+    exec('git pull');
+    
+    console.log('🔄 Restaurando cambios desde stash...');
+    const stashResult = exec('git stash pop', true);
+    
+    if (stashResult.includes('CONFLICT') || stashResult.includes('error')) {
+      console.log('⚠️ Conflicto detectado al aplicar stash. Manteniendo cambios en stash.');
+      console.log('💡 Ejecuta manualmente: git stash list y git stash apply');
+      return false;
+    }
+    
+    console.log('🔄 Haciendo push final...');
+    exec('git push');
+    console.log('✅ Conflicto resuelto automáticamente.');
+    return true;
+    
   } catch (error) {
-    console.log('\n❌ Error en la entrada. Acción cancelada.');
-  } finally {
-    rl.close();
+    console.log('❌ Error al resolver conflicto automáticamente:', error.message);
+    console.log('💡 Revisa manualmente el repositorio.');
+    return false;
   }
 }
 
 async function autoPush() {
+  if (isProcessing) return;
+  
   const gitStatus = exec('git status --porcelain', true);
   if (!gitStatus.includes('data.json')) {
-    console.log('ℹ️ No hay cambios en data.json.');
     return;
   }
 
-  console.log('🔄 Cambios detectados en data.json. Ejecutando Git...');
+  isProcessing = true;
+  console.log(`[${new Date().toLocaleTimeString()}] 🔄 Cambios detectados en data.json. Ejecutando Git...`);
+  
   exec('git add public/data.json');
   
   const commitResult = exec(`git commit -m "Auto push tras guardar data.json [${new Date().toISOString()}]"`, true);
   if (commitResult.includes('error')) {
     console.log('❌ Error en commit:', commitResult);
+    isProcessing = false;
     return;
   }
   console.log('✅ Commit realizado');
@@ -96,7 +120,14 @@ async function autoPush() {
   if (pullResult.includes('error') || pullResult.includes('cannot pull') || pullResult.includes('Please commit')) {
     console.log('❌ Error en git pull:');
     console.log(pullResult);
-    await startInteractiveMenu();
+    
+    // Resolver automáticamente en lugar de mostrar menú
+    const resolved = await handleConflictAutomatically();
+    if (!resolved) {
+      console.log('💡 Para resolver manualmente, detén PM2 y ejecuta el script localmente');
+    }
+    
+    isProcessing = false;
     return;
   }
 
@@ -106,9 +137,44 @@ async function autoPush() {
     console.log('✅ Push completado con éxito.');
   } catch (pushError) {
     console.log('❌ Error en git push:', pushError.message);
-    await startInteractiveMenu();
+    // Intentar resolver automáticamente
+    await handleConflictAutomatically();
   }
+  
+  isProcessing = false;
 }
 
-// Ejecutar
-autoPush().catch(console.error);
+// Función principal del watcher
+async function startWatching() {
+  console.log(`🚀 Git Auto-Push iniciado. Vigilando cambios en ${DATA_FILE}...`);
+  console.log(`📊 Verificando cada ${CHECK_INTERVAL/1000} segundos`);
+  console.log(`🤖 Modo automático: resuelve conflictos con stash/pull/pop`);
+  
+  // Verificar si el archivo existe
+  if (!fs.existsSync(DATA_FILE)) {
+    console.log(`⚠️ Advertencia: ${DATA_FILE} no existe`);
+  }
+  
+  // Loop principal
+  setInterval(async () => {
+    try {
+      await autoPush();
+    } catch (error) {
+      console.error('❌ Error en autoPush:', error.message);
+    }
+  }, CHECK_INTERVAL);
+}
+
+// Manejo de señales para cierre limpio
+process.on('SIGINT', () => {
+  console.log('\n🛑 Deteniendo Git Auto-Push...');
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Deteniendo Git Auto-Push...');
+  process.exit(0);
+});
+
+// Iniciar el watcher
+startWatching().catch(console.error);
