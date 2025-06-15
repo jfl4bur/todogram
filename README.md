@@ -1,13 +1,12 @@
 # Todogram TV
 
-<p align="center">
   [![Contributors][contributors-shield]][contributors-url]
   [![Forks][forks-shield]][forks-url]
   [![Stargazers][stars-shield]][stars-url]
   [![Issues][issues-shield]][issues-url]
   [![License][license-shield]][license-url]
   [![Telegram][telegram-shield]][telegram-url]
-</p>
+
 
 
 ---
@@ -200,11 +199,11 @@ Ambas plataformas sirven `public/data.json` directamente para usarlo desde Softr
 ## 🙌 Agradecimientos
 
 Gracias a:
-- [Notion API][Notion-API-url]
-- [TMDb API][TMDb-API-url]
-- [Softr](https://softr.io)
-- [GitHub Actions][GitHub-Actions-url]
-- [Chalk](https://github.com/chalk/chalk), [Inquirer](https://github.com/SBoudrias/Inquirer.js/), [CLI-Progress](https://github.com/AndiDittrich/Node.CLI-Progress), [Figlet.js](https://github.com/patorjk/figlet.js), [Gradient-string](https://github.com/bokub/gradient-string)
+* [![Node.js][Node.js]][Node-url]
+* [![JavaScript][JavaScript.com]][JavaScript-url]
+* [![GitHub Actions][GitHub-Actions]][GitHub-Actions-url]
+* [![Notion API][Notion-API]][Notion-API-url]
+* [![TMDb API][TMDb-API]][TMDb-API-url]
 
 ---
 
@@ -237,21 +236,17 @@ Gracias a:
 [TMDb-API]: https://img.shields.io/badge/TMDb-01D277?style=for-the-badge&logo=themoviedatabase&logoColor=white
 [TMDb-API-url]: https://www.themoviedb.org/documentation/api
 
-
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge
 [contributors-url]: https://github.com/jfl4bur/Todogram/graphs/contributors
-
 [forks-shield]: https://img.shields.io/github/forks/jfl4bur/Todogram.svg?style=for-the-badge
 [forks-url]: https://github.com/jfl4bur/Todogram/network/members
-
 [stars-shield]: https://img.shields.io/github/stars/jfl4bur/Todogram.svg?style=for-the-badge
 [stars-url]: https://github.com/jfl4bur/Todogram/stargazers
-
 [issues-shield]: https://img.shields.io/github/issues/jfl4bur/Todogram.svg?style=for-the-badge
 [issues-url]: https://github.com/jfl4bur/Todogram/issues
-
 [license-shield]: https://img.shields.io/github/license/jfl4bur/Todogram.svg?style=for-the-badge
 [license-url]: https://github.com/jfl4bur/Todogram/blob/main/LICENSE
-
 [telegram-shield]: https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white
 [telegram-url]: https://t.me/Todogram
