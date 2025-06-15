@@ -237,21 +237,17 @@ Gracias a:
 [TMDb-API]: https://img.shields.io/badge/TMDb-01D277?style=for-the-badge&logo=themoviedatabase&logoColor=white
 [TMDb-API-url]: https://www.themoviedb.org/documentation/api
 
-
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge
 [contributors-url]: https://github.com/jfl4bur/Todogram/graphs/contributors
-
 [forks-shield]: https://img.shields.io/github/forks/jfl4bur/Todogram.svg?style=for-the-badge
 [forks-url]: https://github.com/jfl4bur/Todogram/network/members
-
 [stars-shield]: https://img.shields.io/github/stars/jfl4bur/Todogram.svg?style=for-the-badge
 [stars-url]: https://github.com/jfl4bur/Todogram/stargazers
-
 [issues-shield]: https://img.shields.io/github/issues/jfl4bur/Todogram.svg?style=for-the-badge
 [issues-url]: https://github.com/jfl4bur/Todogram/issues
-
 [license-shield]: https://img.shields.io/github/license/jfl4bur/Todogram.svg?style=for-the-badge
 [license-url]: https://github.com/jfl4bur/Todogram/blob/main/LICENSE
-
 [telegram-shield]: https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white
 [telegram-url]: https://t.me/Todogram
