@@ -1,13 +1,26 @@
 # Todogram TV
 
 <p align="center">
-  [![Contributors][contributors-shield]][contributors-url]
-  [![Forks][forks-shield]][forks-url]
-  [![Stargazers][stars-shield]][stars-url]
-  [![Issues][issues-shield]][issues-url]
-  [![License][license-shield]][license-url]
-  [![Telegram][telegram-shield]][telegram-url]
+  <a href="https://github.com/jfl4bur/Todogram/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge" alt="Contributors" />
+  </a>
+  <a href="https://github.com/jfl4bur/Todogram/network/members">
+    <img src="https://img.shields.io/github/forks/jfl4bur/Todogram.svg?style=for-the-badge" alt="Forks" />
+  </a>
+  <a href="https://github.com/jfl4bur/Todogram/stargazers">
+    <img src="https://img.shields.io/github/stars/jfl4bur/Todogram.svg?style=for-the-badge" alt="Stargazers" />
+  </a>
+  <a href="https://github.com/jfl4bur/Todogram/issues">
+    <img src="https://img.shields.io/github/issues/jfl4bur/Todogram.svg?style=for-the-badge" alt="Issues" />
+  </a>
+  <a href="https://github.com/jfl4bur/Todogram/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/jfl4bur/Todogram.svg?style=for-the-badge" alt="License" />
+  </a>
+  <a href="https://t.me/Todogram">
+    <img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram" />
+  </a>
 </p>
+
 
 
 ---
@@ -200,11 +213,11 @@ Ambas plataformas sirven `public/data.json` directamente para usarlo desde Softr
 ## 🙌 Agradecimientos
 
 Gracias a:
-- [Notion API][Notion-API-url]
-- [TMDb API][TMDb-API-url]
-- [Softr](https://softr.io)
-- [GitHub Actions][GitHub-Actions-url]
-- [Chalk](https://github.com/chalk/chalk), [Inquirer](https://github.com/SBoudrias/Inquirer.js/), [CLI-Progress](https://github.com/AndiDittrich/Node.CLI-Progress), [Figlet.js](https://github.com/patorjk/figlet.js), [Gradient-string](https://github.com/bokub/gradient-string)
+* [![Node.js][Node.js]][Node-url]
+* [![JavaScript][JavaScript.com]][JavaScript-url]
+* [![GitHub Actions][GitHub-Actions]][GitHub-Actions-url]
+* [![Notion API][Notion-API]][Notion-API-url]
+* [![TMDb API][TMDb-API]][TMDb-API-url]
 
 ---
 
