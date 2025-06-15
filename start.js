@@ -1,4 +1,4 @@
-// main.js
+// start.js
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
@@ -8,6 +8,8 @@ import { dirname } from 'path';
 import dotenv from 'dotenv';
 import readline from 'readline';
 import { execSync } from 'child_process';
+import ora from 'ora';
+import os from 'os';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -153,7 +155,7 @@ const logProgress = (count, total, status, missingFields = [], batchSize = 10, n
   lines.push(`\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m`);
 
   if (lastNotionInfo) {
-    lines.push(`\x1b[1m\x1b[36m║ \x1b[34m🚀 Extrayendo datos de Notion:\x1b[0m \x1b[32mLote ${lastNotionInfo.currentBatch} (${lastNotionInfo.entriesInBatch} entradas)\x1b[0m${' '.repeat(30)}\x1b[36m║\x1b[0m`);
+    lines.push(`\x1b[1m\x1b[36m║ \x1b[34m🚀 Extrayendo datos de Notion:\x1b[0m \x1b[32mLote ${lastNotionInfo.currentBatch} (${lastNotionInfo.entriesInBatch} entradas)\x1b[0m${' '.repeat(30)}    \x1b[36m║\x1b[0m`);
 
     const infoLine =
       `📦 Total extraído: \x1b[1m\x1b[32m${lastNotionInfo.totalExtracted.toString().padStart(3, ' ')}\x1b[0m ` +
@@ -161,14 +163,14 @@ const logProgress = (count, total, status, missingFields = [], batchSize = 10, n
       `│ Estado: \x1b[32m${lastNotionInfo.status}\x1b[0m`;
     const visibleLength = getDisplayLength(infoLine);
     const padding = Math.max(0, 86 - visibleLength);
-    lines.push(`\x1b[1m\x1b[36m║ ${infoLine}${' '.repeat(padding)}║\x1b[0m`);
+    lines.push(`\x1b[1m\x1b[36m║${infoLine}${' '.repeat(padding)}║\x1b[0m`);
 
     lines.push(`\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m`);
   }
 
   lines.push(`\x1b[1m\x1b[36m║ \x1b[33m📊 Total películas: \x1b[1m\x1b[32m${total.toString().padStart(3, ' ')}\x1b[0m \x1b[33m│ Procesamiento paralelo: \x1b[1m\x1b[32m${batchSize.toString().padStart(2, ' ')}\x1b[0m \x1b[33mhilos simultáneos\x1b[0m             \x1b[36m   ║\x1b[0m`);
   lines.push(`\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m`);
-  lines.push(`║ ${bar} ║ ${percentText} │ ${countText} │ \x1b[1m\x1b[32m${truncatedTitle.padEnd(40)} ║\x1b[0m`);
+  lines.push(`║ ${bar} ║ ${percentText} │ ${countText} │ \x1b[1m\x1b[32m${truncatedTitle.padEnd(40)}   ║\x1b[0m`);
   lines.push(`\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m`);
   lines.push(`\x1b[1m\x1b[36m║                              \x1b[31m⚠️  CAMPOS FALTANTES ⚠️\x1b[36m                                  ║\x1b[0m`);
   lines.push(`\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m`);
@@ -497,113 +499,137 @@ function exec(cmd, silent = false) {
   }
 }
 
-async function handleConflictAutomatically() {
-  console.log('🤖 Resolviendo conflicto automáticamente...');
-  
-  // Estrategia por defecto: stash, pull, stash pop
-  try {
-    console.log('🔄 Guardando cambios en stash...');
-    exec('git stash');
-    
-    console.log('🔄 Haciendo pull...');
-    exec('git pull');
-    
-    console.log('🔄 Restaurando cambios desde stash...');
-    const stashResult = exec('git stash pop', true);
-    
-    if (stashResult.includes('CONFLICT') || stashResult.includes('error')) {
-      console.log('⚠️ Conflicto detectado al aplicar stash. Manteniendo cambios en stash.');
-      console.log('💡 Ejecuta manualmente: git stash list y git stash apply');
-      return false;
-    }
-    
-    console.log('🔄 Haciendo push final...');
-    exec('git push');
-    console.log('✅ Conflicto resuelto automáticamente.');
-    return true;
-    
-  } catch (error) {
-    console.log('❌ Error al resolver conflicto automáticamente:', error.message);
-    console.log('💡 Revisa manualmente el repositorio.');
-    return false;
-  }
-}
-
 async function autoPush() {
-  console.log('🚀 Iniciando auto-push a GitHub...');
-  
+  const spinner = ora({
+    text: '🚀 Iniciando auto-push a GitHub...',
+    color: 'yellow'
+  }).start();
+
   try {
-    // Verificar si estamos en un repositorio git
-    const gitCheck = exec('git rev-parse --is-inside-work-tree', true);
-    if (gitCheck.includes('fatal')) {
-      console.log('❌ No se encontró un repositorio Git. Auto-push cancelado.');
-      return;
-    }
-
-    // Añadir el archivo
-    exec('git add public/data.json');
+    // Ejecutar el archivo auto-push.js desde la carpeta home
+    const homeDir = os.homedir();
+    const autoPushScript = path.join(homeDir, 'auto-push.js');
     
-    // Hacer commit
-    const commitResult = exec(`git commit -m "Actualización automática de data.json [${new Date().toISOString()}]"`, true);
-    if (commitResult.includes('error') || commitResult.includes('nothing to commit')) {
-      console.log('ℹ️ No hay cambios para commitear.');
+    if (!fs.existsSync(autoPushScript)) {
+      spinner.fail('❌ No se encontró el archivo auto-push.js en la carpeta home');
       return;
     }
-    console.log('✅ Commit realizado');
-
-    // Intentar pull primero
-    console.log('🔄 Intentando git pull...');
-    const pullResult = exec('git pull', true);
     
-    if (pullResult.includes('error') || pullResult.includes('cannot pull') || pullResult.includes('Please commit')) {
-      console.log('❌ Error en git pull:');
-      console.log(pullResult);
-      
-      // Resolver automáticamente
-      const resolved = await handleConflictAutomatically();
-      if (!resolved) {
-        console.log('💡 Para resolver manualmente, ejecuta los comandos git necesarios');
-      }
+    spinner.text = '🔄 Ejecutando script de auto-push...';
+    
+    const result = execSync(`node ${autoPushScript}`, { stdio: 'pipe' }).toString();
+    
+    if (result.includes('error') || result.includes('fatal')) {
+      spinner.fail('❌ Error durante la ejecución del auto-push');
+      console.log(result);
       return;
     }
-
-    // Hacer push
-    console.log('🔄 Haciendo git push...');
-    exec('git push');
-    console.log('✅ Push completado con éxito.');
+    
+    spinner.succeed('✅ Auto-push completado con éxito');
+    console.log(result);
 
   } catch (error) {
-    console.log('❌ Error durante el auto-push:', error.message);
+    spinner.fail('❌ Error durante el auto-push');
+    console.error(error.message);
   }
 }
 
 async function askForAutoPush() {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+    terminal: true
   });
 
-  try {
-    // Configurar timeout de 60 segundos
-    const timeout = setTimeout(() => {
-      rl.close();
-      console.log('\n⏳ Tiempo agotado. No se realizará auto-push.');
-      return false;
-    }, 60000);
+  // Configurar modo raw para detectar teclas inmediatamente
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
 
-    const answer = await new Promise((resolve) => {
-      rl.question('\n¿Deseas activar el auto-push a GitHub? (S/N, tiempo de espera 60s): ', (input) => {
-        clearTimeout(timeout);
-        resolve(input.trim().toUpperCase());
+  let timeLeft = 60;
+  let answer = null;
+  let timer;
+
+  // Función para dibujar la tabla con el contador
+  const drawTable = () => {
+    const lines = [];
+    const timeColor = '\x1b[38;5;208m'; // Naranja
+    const resetColor = '\x1b[0m';
+    
+    lines.push('\x1b[1m\x1b[36m╔═══════════════════════════════════════════════════════════════════════════════════════╗\x1b[0m');
+    lines.push('\x1b[1m\x1b[36m║ \x1b[33m🚀 AUTO-PUSH A GITHUB - CONFIRMACIÓN \x1b[36m                                      ║\x1b[0m');
+    lines.push('\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m');
+    lines.push(`\x1b[1m\x1b[36m║ \x1b[37m¿Deseas ejecutar el auto-push a GitHub? (Presiona cualquier tecla para confirmar) \x1b[36m║\x1b[0m`);
+    lines.push(`\x1b[1m\x1b[36m║ \x1b[31mPresiona \x1b[1mN\x1b[0m\x1b[31m o \x1b[1mESC\x1b[0m\x1b[31m para cancelar \x1b[36m                                                 ║\x1b[0m`);
+    lines.push('\x1b[1m\x1b[36m╠═══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m');
+    lines.push(`\x1b[1m\x1b[36m║ \x1b[33mTiempo restante: ${timeColor}${timeLeft.toString().padStart(2, '0')}s${resetColor} \x1b[36m                                                  ║\x1b[0m`);
+    lines.push('\x1b[1m\x1b[36m╚═══════════════════════════════════════════════════════════════════════════════════════╝\x1b[0m');
+    
+    // Mover cursor arriba para sobreescribir
+    process.stdout.write('\x1b[7F');
+    process.stdout.write(lines.join('\n'));
+  };
+
+  // Dibujar tabla inicial
+  drawTable();
+
+  // Iniciar contador regresivo
+  timer = setInterval(() => {
+    timeLeft--;
+    drawTable();
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      answer = 'TIMEOUT';
+      rl.close();
+    }
+  }, 1000);
+
+  try {
+    const key = await new Promise((resolve) => {
+      process.stdin.on('data', (chunk) => {
+        const key = chunk.toString();
+        
+        // Si es ESC (27) o 'N/n', cancelar
+        if (key === '\x1B' || key.toLowerCase() === 'n') {
+          answer = 'CANCEL';
+          clearInterval(timer);
+          resolve(key);
+        } else {
+          // Cualquier otra tecla confirma
+          answer = 'CONFIRM';
+          clearInterval(timer);
+          resolve(key);
+        }
       });
     });
 
+    // Limpiar eventos y restaurar terminal
+    process.stdin.removeAllListeners('data');
+    process.stdin.setRawMode(false);
+    process.stdin.pause();
     rl.close();
-    return answer === 'S';
+
+    // Limpiar la tabla
+    process.stdout.write('\x1b[7F\x1b[0J');
+
+    if (answer === 'CANCEL') {
+      console.log('\x1b[1m\x1b[31m✖ Auto-push cancelado\x1b[0m');
+      return false;
+    } else if (answer === 'TIMEOUT') {
+      console.log('\x1b[1m\x1b[33m⌛ Tiempo agotado. Ejecutando auto-push...\x1b[0m');
+      return true;
+    } else {
+      console.log('\x1b[1m\x1b[32m✓ Confirmado. Ejecutando auto-push...\x1b[0m');
+      return true;
+    }
 
   } catch (error) {
+    clearInterval(timer);
+    process.stdin.removeAllListeners('data');
+    process.stdin.setRawMode(false);
+    process.stdin.pause();
     rl.close();
-    console.log('❌ Error al leer la respuesta:', error.message);
+    console.log('\x1b[1m\x1b[31m❌ Error al leer la respuesta:\x1b[0m', error.message);
     return false;
   }
 }

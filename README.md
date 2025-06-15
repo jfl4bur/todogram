@@ -1,44 +1,222 @@
+# Todogram TV
 
 <p align="center">
-  <a href="https://github.com/jfl4bur/Todogram">
-    <img src="https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge" alt="Contributors" />
-    <img src="https://img.shields.io/github/forks/jfl4bur/Todogram.svg?style=for-the-badge" alt="Forks" />
-    <img src="https://img.shields.io/github/stars/jfl4bur/Todogram.svg?style=for-the-badge" alt="Stargazers" />
-    <img src="https://img.shields.io/github/issues/jfl4bur/Todogram.svg?style=for-the-badge" alt="Issues" />
-    <img src="https://img.shields.io/github/license/jfl4bur/Todogram.svg?style=for-the-badge" alt="License" />
-    <img src="https://img.shields.io/badge/LinkedIn--blue?style=for-the-badge&logo=linkedin" alt="LinkedIn" />
-  </a>
+  [![Contributors][contributors-shield]][contributors-url]
+  [![Forks][forks-shield]][forks-url]
+  [![Stargazers][stars-shield]][stars-url]
+  [![Issues][issues-shield]][issues-url]
+  [![License][license-shield]][license-url]
+  [![Telegram][telegram-shield]][telegram-url]
 </p>
 
-<a id="readme-top"></a>
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="180" height="180">
-  </a>
+---
 
-  <h3 align="center">Script Películas / series</h3>
+## 📚 Tabla de Contenidos
 
-  <p align="center">
-    ¡Una fantástica documentación para impulsar tus proyectos!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explora la documentación »</strong></a>
-    <br />
-    <br />
-    <a href="https://jfl4bur.github.io/Todogram/">Ver Demo</a>
-    &middot;
-    <a href="https://github.com/jfl4bur/Todogram/issues/new?labels=bug&template=bug-report---.md">Informar de un ERROR</a>
-    &middot;
-    <a href="https://github.com/jfl4bur/Todogram/issues/new?labels=enhancement&template=feature-request---.md">Solicitar Función</a>
-  </p>
-</div>
-<p align="right">(<a href="#readme-top">volver arriba</a>)</p>
+- 📌 [Descripción general](#descripción-general)
+- 🧰 [Requisitos](#requisitos)
+- 💻 [Instalación local](#instalación-local)
+- 🚀 [Uso con GitHub Actions](#uso-con-github-actions)
+- 📁 [Estructura de archivos](#estructura-de-archivos)
+- 🔍 [Explicación técnica](#explicación-técnica)
+- 🧭 [Diagrama del flujo de datos](#diagrama-del-flujo-de-datos)
+- 🧯 [Errores comunes y soluciones](#errores-y-soluciones)
+- ❓ [Preguntas frecuentes (FAQ)](#faq)
+- 🌐 [Despliegue en Vercel y Netlify](#despliegue-en-vercel-y-netlify)
+- 📊 [Datos de interés](#datos-de-interés)
+- 🙌 [Agradecimientos](#agradecimientos)
+- 👤 [Autor](#autor)
 
-### Construido con
+---
 
-Esta sección debe enumerar los principales frameworks/bibliotecas utilizados para el arranque de su proyecto. Deje los complementos/plugins para la sección de agradecimientos. Aquí tiene algunos ejemplos.
+## 📌 Descripción general
+
+Este proyecto permite sincronizar una base de datos de películas y series desde **Notion**, enriquecerla automáticamente usando la **API de TMDb**, generar un archivo `data.json` final con los resultados combinados, y desplegarlo fácilmente en una web tipo **Rakuten.tv** con **Softr** o cualquier frontend conectado.
+
+El flujo de trabajo automatiza la extracción, sincronización, formateo y despliegue de los datos, haciendo uso de scripts en Node.js y GitHub Actions.
+
+---
+
+## 🧰 Requisitos
+
+Antes de instalar, asegúrate de tener:
+
+- ✅ [Node.js][Node-url]
+- ✅ [npm][Node-url] (incluido con Node)
+- ✅ [Git](https://git-scm.com)
+- ✅ Cuenta en [GitHub](https://github.com)
+- ✅ API Key de [TMDb][TMDb-API-url]
+- ✅ Base de datos estructurada en [Notion][Notion-API-url]
+
+---
+
+## 💻 Instalación local
+
+### 1. Clona el repositorio
+```bash
+git clone https://github.com/jfl4bur/Todogram.git
+cd Todogram
+```
+
+### 2. Instala las dependencias
+```bash
+npm install
+```
+Esto ejecutará automáticamente el `postinstall` y descargará:
+- `inquirer`
+- `chalk`
+- `figlet`
+- `gradient-string`
+- `cli-progress`
+- `boxen`
+
+### 3. Añade tus variables de entorno
+Crea un archivo `.env` con:
+```
+NOTION_TOKEN=tu_token_secreto
+NOTION_DATABASE_ID=tu_database_id
+TMDB_API_KEY=tu_clave_tmdb
+```
+
+### 4. Ejecuta el script principal
+```bash
+npm start
+```
+Esto abrirá el menú visual de **Todogram TV**, que te permitirá:
+- Obtener datos
+- Lanzar auto-push
+- Ver logs
+- Hacer push seguro
+- Instalar dependencias
+
+---
+
+## 🚀 Uso con GitHub Actions
+
+El proyecto incluye un workflow llamado `sync.yml` en `.github/workflows/` que:
+- Se ejecuta manualmente o cada hora (CRON)
+- Extrae datos desde Notion
+- Consulta TMDb si faltan campos
+- Genera `public/data.json`
+- Hace push automáticamente si hubo cambios
+
+### Ejecutar manualmente:
+Desde GitHub > Actions > `Sync Notion y TMDB` > Run workflow
+
+---
+
+## 📁 Estructura de archivos
+
+```
+├── Todogram.js            # Menú visual interactivo (principal)
+├── start.js               # Extrae datos desde Notion y TMDb
+├── auto-push.js           # Realiza git add, commit y push interactivo
+├── .env                   # Variables de entorno (no subir al repo)
+├── /public/data.json      # Archivo generado con los datos
+├── /github/workflows/     # Workflow de sincronización automática
+└── package.json           # Scripts, postinstall y dependencias
+```
+
+---
+
+## 🔍 Explicación técnica
+
+- `start.js` extrae primero los datos locales de Notion
+  - Usa propiedades de texto como `Géneros txt` y `Categorías txt` para evitar consumir API extra
+  - Si falta información, consulta TMDb por ID o título
+  - Fusiona los datos, priorizando Notion
+  - Genera un `data.json` público
+
+- `auto-push.js` automatiza el control de Git (add, commit, push) y puede forzar workflows con commits vacíos
+
+- `Todogram.js` es el controlador visual, mostrando todas las opciones posibles con menús amigables, color y animaciones
+
+---
+
+## 🧭 Diagrama del flujo de datos
+
+![Flujo de datos Notion > TMDb > JSON > Web](./A_flowchart_in_the_image_illustrates_the_integrati.png)
+
+1. **Notion** → extraemos los datos manuales
+2. **TMDb API** → completamos campos vacíos automáticamente
+3. **JSON** → se genera un archivo `data.json`
+4. **Softr Web** → la web visualiza el JSON actualizado
+
+---
+
+## 🧯 Errores y soluciones
+
+| Error | Causa | Solución |
+|------|-------|----------|
+| `Missing Notion token` | No creaste `.env` | Crea `.env` con tus claves |
+| `Cannot find start.js` | Falta archivo | Verifica que esté en la carpeta principal |
+| `gh auth status` falla | GitHub CLI no instalado o no logueado | Ejecuta `gh auth login` |
+| API rate limit | Muchas llamadas a Notion/TMDB | Usa campos `txt` ya procesados en Notion |
+
+---
+
+## ❓ FAQ
+
+**¿Necesito conocimientos técnicos avanzados?**
+> No. El menú de Todogram es para principiantes y automatiza todo el flujo.
+
+**¿Cómo sé si tengo todo instalado?**
+> Usa la opción `[6] Verificar dependencias` y verás ✅ o ❌ según tu sistema.
+
+**¿Se puede modificar el diseño visual?**
+> Sí. Puedes editar `Todogram.js` y usar más colores, bordes, o animaciones con `chalk`, `boxen`, etc.
+
+**¿Puedo usarlo sin Softr?**
+> Sí. El JSON generado (`public/data.json`) puede ser usado con cualquier frontend: React, Vue, Next, etc.
+
+---
+
+## 🌐 Despliegue en Vercel y Netlify
+
+### Vercel
+- Crea un nuevo proyecto desde el repositorio
+- En settings, define las variables del entorno (`.env`)
+- Apunta a un script build vacío (`build: ""`) si solo sirves JSON/static
+
+### Netlify
+- Usa el repo como origen
+- Añade tus variables de entorno
+- Puedes usar `netlify.toml` si quieres definir rutas
+
+Ambas plataformas sirven `public/data.json` directamente para usarlo desde Softr u otro cliente web.
+
+---
+
+## 📊 Datos de interés
+
+- Automatización completa Notion + TMDb + JSON + Web
+- Control visual para Git sin escribir comandos complejos
+- Optimización para evitar sobrecargar la API de Notion
+- Listo para principiantes totales
+
+---
+
+## 🙌 Agradecimientos
+
+Gracias a:
+- [Notion API][Notion-API-url]
+- [TMDb API][TMDb-API-url]
+- [Softr](https://softr.io)
+- [GitHub Actions][GitHub-Actions-url]
+- [Chalk](https://github.com/chalk/chalk), [Inquirer](https://github.com/SBoudrias/Inquirer.js/), [CLI-Progress](https://github.com/AndiDittrich/Node.CLI-Progress), [Figlet.js](https://github.com/patorjk/figlet.js), [Gradient-string](https://github.com/bokub/gradient-string)
+
+---
+
+## 👤 Autor
+
+| [<img src="https://avatars.githubusercontent.com/u/74684004?v=4" width=115><br><sub>@Todogram</sub>](https://github.com/jfl4bur) |
+|:---:|
+
+
+---
+
+## 🧱 Construido con
 
 * [![Node.js][Node.js]][Node-url]
 * [![JavaScript][JavaScript.com]][JavaScript-url]
@@ -46,168 +224,8 @@ Esta sección debe enumerar los principales frameworks/bibliotecas utilizados pa
 * [![Notion API][Notion-API]][Notion-API-url]
 * [![TMDb API][TMDb-API]][TMDb-API-url]
 
-<p align="right">(<a href="#readme-top">volver arriba</a>)</p>
 
-## Tabla de contenidos 📚
-
-- [Descripción general](#descripción-general-)
-- [Requisitos](#requisitos-)
-- [Instalación local](#instalación-local-)
-- [Uso en GitHub Actions](#uso-en-github-actions-)
-- [Estructura de archivos](#estructura-de-archivos-)
-- [Explicación técnica del funcionamiento](#explicación-técnica-del-funcionamiento-)
-- [Errores y soluciones](#errores-y-soluciones-)
-- [FAQ - Preguntas frecuentes](#faq---preguntas-frecuentes-)
-- [Datos de interés](#datos-de-interés-)
-- [Agradecimientos](#agradecimientos-)
-
-## Descripción general 📖
-
-Este proyecto proporciona un conjunto de scripts y configuraciones para extraer, sincronizar y enriquecer datos de películas y series desde una base de datos Notion y la API de TMDb. El objetivo principal es crear un archivo JSON con la información consolidada y utilizarlo en aplicaciones web (como clones de Rakuten.tv) para mostrar contenido actualizado y detallado.
-
-Incluye soporte para:
-- Extracción de datos desde Notion (títulos, géneros, sinopsis, carteles, etc.)
-- Enriquecimiento de datos desde TMDb cuando faltan datos en Notion.
-- Uso de GitHub Actions para automatizar la sincronización y generación del archivo JSON.
-- Optimización y control detallado de procesos con barras de progreso y registros en consola.
-- Prioridad en los datos manuales de Notion para preservar correcciones y personalizaciones.
-
-## Requisitos 🛠️
-
-- Node.js (v16 o superior recomendado)
-- Cuenta en Notion con acceso a la base de datos que contiene los datos
-- Token de integración API de Notion
-- API Key de TMDb (The Movie Database)
-- GitHub con repositorio configurado para usar GitHub Actions (opcional para automatización)
-- Conocimientos básicos de Git y línea de comandos (para instalación y despliegue local)
-
-## Instalación local 🖥️
-
-1. Clona este repositorio:
-   ```bash
-   git clone https://github.com/jfl4bur/Todogram.git
-   cd Todogram
-   ```
-
-2. Instala dependencias:
-   ```bash
-   npm install
-   ```
-
-3. Configura las variables de entorno:
-   Crea un archivo `.env` en la raíz con el siguiente contenido:
-   ```
-   NOTION_TOKEN=tu_token_notion
-   NOTION_DATABASE_ID=tu_id_base_de_datos
-   TMDB_API_KEY=tu_api_key_tmdb
-   ```
-
-4. Ejecuta el script principal para extraer y generar el archivo `data.json`:
-   ```bash
-   node main.js
-   ```
-
-5. Revisa el archivo generado en `data.json`. Este contiene toda la información sincronizada.
-
-## Uso en GitHub Actions 🤖
-
-Para automatizar la actualización del archivo `data.json` y sincronizar cambios:
-
-1. Copia el archivo `.github/workflows/sync.yml` (o crea uno similar) en tu repositorio.
-
-2. Añade los secretos en GitHub (`Settings > Secrets`) con los nombres:
-   - `NOTION_TOKEN`
-   - `NOTION_DATABASE_ID`
-   - `TMDB_API_KEY`
-
-3. Cada vez que hagas push o con la periodicidad configurada, GitHub Actions ejecutará el workflow que:
-   - Extrae datos desde Notion.
-   - Consulta TMDb para completar datos faltantes.
-   - Actualiza el archivo JSON en el repositorio automáticamente.
-
-4. Puedes revisar los logs de ejecución desde la pestaña Actions en GitHub.
-
-## Estructura de archivos 📂
-
-```
-/Todogram
-│
-├── main.js               # Script principal para extracción y generación de data.json
-├── auto-push.js          # Script auxiliar para gestión avanzada de git push
-├── data.json             # Archivo generado con los datos consolidados
-├── .env.example          # Ejemplo de configuración de variables de entorno
-├── package.json          # Configuración de proyecto Node.js
-├── .github/
-│   └── workflows/
-│       └── sync.yml      # Configuración GitHub Actions para automatización
-└── README.md             # Esta documentación
-```
-
-## Explicación técnica del funcionamiento 🔧
-
-- **main.js**  
-  Este archivo contiene el código para conectar con Notion API y extraer toda la información relevante de la base de datos (títulos, géneros, sinopsis, imágenes, etc.).  
-  Luego consulta la API de TMDb para obtener datos adicionales o rellenar campos faltantes.  
-  Prioriza siempre los datos de Notion para mantener correcciones manuales.  
-  Muestra barras de progreso estilizadas y mensajes detallados en la consola para seguimiento.  
-  Finalmente, guarda toda la información consolidada en un archivo JSON (`data.json`).
-
-- **auto-push.js**  
-  Script para facilitar el proceso de subir cambios a GitHub cuando ocurren conflictos de push.  
-  Proporciona un menú interactivo para seleccionar cómo resolver conflictos y comandos git útiles.
-
-- **sync.yml**  
-  Archivo de configuración para GitHub Actions que automatiza el proceso de extracción y actualización del JSON en el repositorio.  
-  Define los eventos de disparo (push, cron) y los pasos necesarios para ejecutar `main.js` en un entorno de CI.
-
-- **data.json**  
-  Archivo generado que contiene la base de datos consolidada para usar en la app web Softr o cualquier frontend que consuma esta información.
-
-## Errores y soluciones ❌➡️✅
-
-- **Error: Token de Notion inválido o base de datos no encontrada**  
-  Verifica que tu token y ID de base de datos estén correctamente configurados en `.env` o en los secretos de GitHub.
-
-- **Error: Límite de API de Notion excedido**  
-  El script usa pausas y optimizaciones para evitarlo, pero si tienes muchos datos, puede ser necesario aumentar los tiempos o dividir la base de datos.
-
-- **Error: API de TMDb no responde o key inválida**  
-  Revisa tu clave TMDb y el límite de uso diario. Asegúrate de que tu cuenta TMDb esté activa.
-
-- **Conflictos al hacer push en GitHub**  
-  Usa `auto-push.js` para resolver de forma interactiva los conflictos de git.
-
-## FAQ - Preguntas frecuentes ❓
-
-**Q1: ¿Puedo usar este proyecto sin GitHub Actions?**  
-Sí, puedes ejecutar el script localmente y subir manualmente el archivo `data.json`.
-
-**Q2: ¿Qué hago si un campo no se actualiza?**  
-Revisa que el campo exista en Notion y que el script tenga permisos. También verifica que la API de TMDb tenga datos para ese ítem.
-
-**Q3: ¿Puedo modificar la base de datos en Notion?**  
-Sí, los cambios se reflejarán en la próxima sincronización.
-
-**Q4: ¿Se puede integrar con otras APIs?**  
-Actualmente solo está diseñado para TMDb y Notion, pero el código es extensible.
-
-## Datos de interés ℹ️
-
-- El proyecto prioriza datos manuales de Notion para mantener personalizaciones.  
-- Las imágenes (portadas y carteles) se extraen preferentemente de Notion y como respaldo de TMDb.  
-- La barra de progreso usa caracteres Unicode para visualización clara en consola.  
-- El workflow está pensado para evitar exceder límites de API y manejo eficiente de grandes bases de datos.
-
-## Agradecimientos 🙏
-
-- A la comunidad de Notion API por su excelente documentación.  
-- Al equipo de TMDb por proveer una API robusta para datos multimedia.  
-- A los desarrolladores de GitHub Actions por permitir automatizar flujos CI/CD.  
-- A todos los colaboradores que han aportado a este proyecto.
-
-<p align="right">(<a href="#readme-top">volver arriba</a>)</p>
-
-<!-- Referencias de badges -->
+<!-- Referencias -->
 [Node.js]: https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white
 [Node-url]: https://nodejs.org/
 [JavaScript.com]: https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black
@@ -218,3 +236,22 @@ Actualmente solo está diseñado para TMDb y Notion, pero el código es extensib
 [Notion-API-url]: https://developers.notion.com/
 [TMDb-API]: https://img.shields.io/badge/TMDb-01D277?style=for-the-badge&logo=themoviedatabase&logoColor=white
 [TMDb-API-url]: https://www.themoviedb.org/documentation/api
+
+
+[contributors-shield]: https://img.shields.io/github/contributors/jfl4bur/Todogram.svg?style=for-the-badge
+[contributors-url]: https://github.com/jfl4bur/Todogram/graphs/contributors
+
+[forks-shield]: https://img.shields.io/github/forks/jfl4bur/Todogram.svg?style=for-the-badge
+[forks-url]: https://github.com/jfl4bur/Todogram/network/members
+
+[stars-shield]: https://img.shields.io/github/stars/jfl4bur/Todogram.svg?style=for-the-badge
+[stars-url]: https://github.com/jfl4bur/Todogram/stargazers
+
+[issues-shield]: https://img.shields.io/github/issues/jfl4bur/Todogram.svg?style=for-the-badge
+[issues-url]: https://github.com/jfl4bur/Todogram/issues
+
+[license-shield]: https://img.shields.io/github/license/jfl4bur/Todogram.svg?style=for-the-badge
+[license-url]: https://github.com/jfl4bur/Todogram/blob/main/LICENSE
+
+[telegram-shield]: https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white
+[telegram-url]: https://t.me/Todogram
