@@ -6,6 +6,8 @@ import { Client } from '@notionhq/client';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import dotenv from 'dotenv';
+import readline from 'readline';
+import { execSync } from 'child_process';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -485,6 +487,128 @@ async function validateEnvironment() {
   }
 }
 
+// Funciones para el auto-push
+function exec(cmd, silent = false) {
+  try {
+    const output = execSync(cmd, { stdio: silent ? 'pipe' : 'inherit' });
+    return output?.toString().trim() || '';
+  } catch (err) {
+    return err.message;
+  }
+}
+
+async function handleConflictAutomatically() {
+  console.log('🤖 Resolviendo conflicto automáticamente...');
+  
+  // Estrategia por defecto: stash, pull, stash pop
+  try {
+    console.log('🔄 Guardando cambios en stash...');
+    exec('git stash');
+    
+    console.log('🔄 Haciendo pull...');
+    exec('git pull');
+    
+    console.log('🔄 Restaurando cambios desde stash...');
+    const stashResult = exec('git stash pop', true);
+    
+    if (stashResult.includes('CONFLICT') || stashResult.includes('error')) {
+      console.log('⚠️ Conflicto detectado al aplicar stash. Manteniendo cambios en stash.');
+      console.log('💡 Ejecuta manualmente: git stash list y git stash apply');
+      return false;
+    }
+    
+    console.log('🔄 Haciendo push final...');
+    exec('git push');
+    console.log('✅ Conflicto resuelto automáticamente.');
+    return true;
+    
+  } catch (error) {
+    console.log('❌ Error al resolver conflicto automáticamente:', error.message);
+    console.log('💡 Revisa manualmente el repositorio.');
+    return false;
+  }
+}
+
+async function autoPush() {
+  console.log('🚀 Iniciando auto-push a GitHub...');
+  
+  try {
+    // Verificar si estamos en un repositorio git
+    const gitCheck = exec('git rev-parse --is-inside-work-tree', true);
+    if (gitCheck.includes('fatal')) {
+      console.log('❌ No se encontró un repositorio Git. Auto-push cancelado.');
+      return;
+    }
+
+    // Añadir el archivo
+    exec('git add public/data.json');
+    
+    // Hacer commit
+    const commitResult = exec(`git commit -m "Actualización automática de data.json [${new Date().toISOString()}]"`, true);
+    if (commitResult.includes('error') || commitResult.includes('nothing to commit')) {
+      console.log('ℹ️ No hay cambios para commitear.');
+      return;
+    }
+    console.log('✅ Commit realizado');
+
+    // Intentar pull primero
+    console.log('🔄 Intentando git pull...');
+    const pullResult = exec('git pull', true);
+    
+    if (pullResult.includes('error') || pullResult.includes('cannot pull') || pullResult.includes('Please commit')) {
+      console.log('❌ Error en git pull:');
+      console.log(pullResult);
+      
+      // Resolver automáticamente
+      const resolved = await handleConflictAutomatically();
+      if (!resolved) {
+        console.log('💡 Para resolver manualmente, ejecuta los comandos git necesarios');
+      }
+      return;
+    }
+
+    // Hacer push
+    console.log('🔄 Haciendo git push...');
+    exec('git push');
+    console.log('✅ Push completado con éxito.');
+
+  } catch (error) {
+    console.log('❌ Error durante el auto-push:', error.message);
+  }
+}
+
+async function askForAutoPush() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  try {
+    // Configurar timeout de 60 segundos
+    const timeout = setTimeout(() => {
+      rl.close();
+      console.log('\n⏳ Tiempo agotado. No se realizará auto-push.');
+      return false;
+    }, 60000);
+
+    const answer = await new Promise((resolve) => {
+      rl.question('\n¿Deseas activar el auto-push a GitHub? (S/N, tiempo de espera 60s): ', (input) => {
+        clearTimeout(timeout);
+        resolve(input.trim().toUpperCase());
+      });
+    });
+
+    rl.close();
+    return answer === 'S';
+
+  } catch (error) {
+    rl.close();
+    console.log('❌ Error al leer la respuesta:', error.message);
+    return false;
+  }
+}
+
+// Función principal
 (async () => {
   const startTime = Date.now();
   
@@ -505,7 +629,11 @@ async function validateEnvironment() {
     if (!fs.existsSync(publicDir)) {
       fs.mkdirSync(publicDir, { recursive: true });
     }
+
+    // Preguntar si se desea hacer auto-push
+    const doAutoPush = await askForAutoPush();
     
+    // Guardar el archivo
     fs.writeFileSync(output, JSON.stringify(items, null, 2));
     
     const endTime = Date.now();
@@ -514,52 +642,55 @@ async function validateEnvironment() {
     const seconds = executionTime % 60;
     const timeString = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
     
+    function createLine(content, targetWidth = 82) {
+        const contentLength = getDisplayLength(content);
+        const spaces = Math.max(0, targetWidth - contentLength);
+        return `\x1b[1m\x1b[36m ║  ${content}${' '.repeat(spaces)}\x1b[1m\x1b[36m║\x1b[0m`;
+    }
 
-
-function createLine(content, targetWidth = 82) {
-    const contentLength = getDisplayLength(content);
-    const spaces = Math.max(0, targetWidth - contentLength);
-    return `\x1b[1m\x1b[36m ║  ${content}${' '.repeat(spaces)}\x1b[1m\x1b[36m║\x1b[0m`;
-}
-
-console.log('\n');
-console.log('\x1b[1m\x1b[36m ╔══════════════════════════════════════════════════════════════════════════════════════╗\x1b[0m');
-console.log('\x1b[1m\x1b[36m ║                             \x1b[1m\x1b[33m🎬 PROCESO COMPLETADO 🎬\x1b[1m\x1b[36m                                 ║\x1b[0m');
-console.log('\x1b[1m\x1b[36m ╠══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m');
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[32m✅ Archivo actualizado:\x1b[0m \x1b[1m\x1b[37mdata.json\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[35m📁 Ubicación:\x1b[0m`));
-console.log(createLine(`  \x1b[2m\x1b[37m${truncateText(output, 70)}\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[33m📊 Total procesadas:\x1b[0m \x1b[1m\x1b[32m${items.length.toString().padStart(3, ' ')}\x1b[0m \x1b[33mpelículas\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-console.log(createLine(`\x1b[35m📥 Extracción Notion:\x1b[0m \x1b[32m${lastNotionInfo.totalExtracted} películas en ${lastNotionInfo.currentBatch} lotes\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[31m⚠️  Campos faltantes:\x1b[0m \x1b[1m\x1b[31m${missingFieldsTable.length.toString().padStart(3, ' ')}\x1b[0m \x1b[31mentradas con datos incompletos\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[35m⏱️  Tiempo ejecución:\x1b[0m \x1b[1m\x1b[36m${timeString.padStart(8, ' ')}\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[37m🕒 Completado:\x1b[0m \x1b[2m\x1b[37m${now()}\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[36m💡 Cache TMDB:\x1b[0m \x1b[1m\x1b[35m${tmdbCache.size.toString().padStart(3, ' ')}\x1b[0m \x1b[35mrequests guardados\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[33m🎯 PRIORIDAD NOTION:\x1b[0m \x1b[32mDatos de Notion primero\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log(createLine(`\x1b[35m🚀 Procesamiento:\x1b[0m \x1b[32mParalelo (15 simultáneos)\x1b[0m`));
-console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
-
-console.log('\x1b[1m\x1b[36m ╚══════════════════════════════════════════════════════════════════════════════════════╝\x1b[0m');
     console.log('\n');
+    console.log('\x1b[1m\x1b[36m ╔══════════════════════════════════════════════════════════════════════════════════════╗\x1b[0m');
+    console.log('\x1b[1m\x1b[36m ║                             \x1b[1m\x1b[33m🎬 PROCESO COMPLETADO 🎬\x1b[1m\x1b[36m                                 ║\x1b[0m');
+    console.log('\x1b[1m\x1b[36m ╠══════════════════════════════════════════════════════════════════════════════════════╣\x1b[0m');
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[32m✅ Archivo actualizado:\x1b[0m \x1b[1m\x1b[37mdata.json\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[35m📁 Ubicación:\x1b[0m`));
+    console.log(createLine(`  \x1b[2m\x1b[37m${truncateText(output, 70)}\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[33m📊 Total procesadas:\x1b[0m \x1b[1m\x1b[32m${items.length.toString().padStart(3, ' ')}\x1b[0m \x1b[33mpelículas\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+    console.log(createLine(`\x1b[35m📥 Extracción Notion:\x1b[0m \x1b[32m${lastNotionInfo.totalExtracted} películas en ${lastNotionInfo.currentBatch} lotes\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[31m⚠️  Campos faltantes:\x1b[0m \x1b[1m\x1b[31m${missingFieldsTable.length.toString().padStart(3, ' ')}\x1b[0m \x1b[31mentradas con datos incompletos\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[35m⏱️  Tiempo ejecución:\x1b[0m \x1b[1m\x1b[36m${timeString.padStart(8, ' ')}\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[37m🕒 Completado:\x1b[0m \x1b[2m\x1b[37m${now()}\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[36m💡 Cache TMDB:\x1b[0m \x1b[1m\x1b[35m${tmdbCache.size.toString().padStart(3, ' ')}\x1b[0m \x1b[35mrequests guardados\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[33m🎯 PRIORIDAD NOTION:\x1b[0m \x1b[32mDatos de Notion primero\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log(createLine(`\x1b[35m🚀 Procesamiento:\x1b[0m \x1b[32mParalelo (15 simultáneos)\x1b[0m`));
+    console.log('\x1b[1m\x1b[36m ║                                                                                      ║\x1b[0m');
+
+    console.log('\x1b[1m\x1b[36m ╚══════════════════════════════════════════════════════════════════════════════════════╝\x1b[0m');
+    console.log('\n');
+    
+    // Ejecutar auto-push si se seleccionó
+    if (doAutoPush) {
+      await autoPush();
+    }
     
   } catch (error) {
     console.error('\n\x1b[31m❌ Error durante la ejecución:\x1b[0m');
